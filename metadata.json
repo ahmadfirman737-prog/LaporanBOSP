@@ -1,0 +1,7 @@
+{
+  "name": "Aplikasi Laporan Keuangan BOSP Modern",
+  "description": "Aplikasi rekapitulasi realisasi belanja SIPLah dan pencairan honor guru/tendik BOSP beserta perhitungan pengembalian dana SI dan cetak laporan resmi.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
+

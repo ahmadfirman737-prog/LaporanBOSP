@@ -1,0 +1,80 @@
+{
+  "$schema": "https://firebase.google.com/schemas/firestore-blueprint.json",
+  "collections": {
+    "schools": {
+      "description": "Identitas dan data profil sekolah BOSP",
+      "fields": {
+        "namaSekolah": { "type": "string", "description": "Nama yayasan / sekolah" },
+        "npsn": { "type": "string", "description": "NPSN Sekolah" },
+        "tahunAnggaran": { "type": "string", "description": "Tahun Anggaran BOSP" },
+        "semester": { "type": "string", "description": "Semester aktif" },
+        "kepalaSekolah": { "type": "string", "description": "Nama Kepala Sekolah" },
+        "nipKepalaSekolah": { "type": "string", "description": "NIP Kepala Sekolah" },
+        "bendahara": { "type": "string", "description": "Nama Bendahara BOSP" },
+        "nipBendahara": { "type": "string", "description": "NIP Bendahara BOSP" },
+        "updatedAt": { "type": "string", "description": "Waktu perubahan terakhir" }
+      }
+    },
+    "users": {
+      "description": "Daftar pengguna dan akun pengelola BOSP",
+      "fields": {
+        "username": { "type": "string", "description": "Nama pengguna login" },
+        "password": { "type": "string", "description": "Kata sandi akun" },
+        "nama": { "type": "string", "description": "Nama lengkap dan gelar" },
+        "role": { "type": "string", "description": "Peran hak akses" },
+        "nip": { "type": "string", "description": "NIP pengguna" },
+        "email": { "type": "string", "description": "Alamat email" },
+        "status": { "type": "string", "description": "Status akun aktif/nonaktif" },
+        "createdAt": { "type": "string", "description": "Tanggal pembuatan akun" }
+      }
+    },
+    "honor": {
+      "description": "Data belanja honor guru dan tendik BOSP",
+      "fields": {
+        "guruId": { "type": "number", "description": "ID Guru terkait" },
+        "nama": { "type": "string", "description": "Nama penerima honor" },
+        "jabatan": { "type": "string", "description": "Jabatan" },
+        "bulan": { "type": "string", "description": "Bulan pembayaran honor" },
+        "nominal": { "type": "number", "description": "Nominal kotor honor" },
+        "keterangan": { "type": "string", "description": "Keterangan catatan" },
+        "pph21": { "type": "number", "description": "Nilai potongan PPh 21" },
+        "diterima": { "type": "number", "description": "Nominal bersih diterima" },
+        "tanggal": { "type": "string", "description": "Tanggal bayar" },
+        "statusKembali": { "type": "boolean", "description": "Status pengembalian honor" },
+        "nominalKembali": { "type": "number", "description": "Nominal pengembalian" },
+        "alasanKembali": { "type": "string", "description": "Alasan pengembalian dana" }
+      }
+    },
+    "siplah": {
+      "description": "Data belanja barang/jasa melalui SIPLah",
+      "fields": {
+        "noPesanan": { "type": "string", "description": "Nomor pesanan SIPLah" },
+        "tanggal": { "type": "string", "description": "Tanggal transaksi" },
+        "namaToko": { "type": "string", "description": "Nama toko / penyedia" },
+        "uraian": { "type": "string", "description": "Uraian barang / belanja" },
+        "total": { "type": "number", "description": "Total belanja kotor" },
+        "ppn": { "type": "number", "description": "Pajak PPN" },
+        "pph22": { "type": "number", "description": "Pajak PPh 22" },
+        "pembayaran": { "type": "number", "description": "Total neto pembayaran" },
+        "keterangan": { "type": "string", "description": "Catatan / keterangan" },
+        "statusKembali": { "type": "boolean", "description": "Status pengembalian dana belanja" },
+        "nominalKembali": { "type": "number", "description": "Nominal pengembalian" },
+        "alasanKembali": { "type": "string", "description": "Alasan pengembalian belanja" }
+      }
+    },
+    "guru": {
+      "description": "Master data guru dan tenaga kependidikan",
+      "fields": {
+        "id": { "type": "number", "description": "ID numerik guru" },
+        "nama": { "type": "string", "description": "Nama guru / tendik" },
+        "nip": { "type": "string", "description": "NIP / NUPTK" },
+        "jabatan": { "type": "string", "description": "Jabatan fungsional / struktural" },
+        "npwp": { "type": "string", "description": "Nomor NPWP" },
+        "noRekening": { "type": "string", "description": "Nomor rekening bank" },
+        "bank": { "type": "string", "description": "Nama bank" },
+        "tarifPph": { "type": "number", "description": "Persentase tarif PPh" },
+        "aktif": { "type": "boolean", "description": "Status keaktifan" }
+      }
+    }
+  }
+}
