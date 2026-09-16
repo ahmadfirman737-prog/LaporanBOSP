@@ -1,207 +1,299 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000" width="100%" height="100%">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1060" width="100%" height="100%">
   <defs>
-    <!-- Gold Rim Gradient -->
-    <linearGradient id="goldGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#E2B755" />
-      <stop offset="25%" stop-color="#C59B27" />
-      <stop offset="50%" stop-color="#F3D478" />
-      <stop offset="75%" stop-color="#B8860B" />
-      <stop offset="100%" stop-color="#916508" />
+    <!-- Satin Gold Gradient for Outer Bevelled Rim -->
+    <linearGradient id="goldRimGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#CBB168" />
+      <stop offset="25%" stop-color="#B29045" />
+      <stop offset="50%" stop-color="#DCC37E" />
+      <stop offset="75%" stop-color="#9C7728" />
+      <stop offset="100%" stop-color="#7D5C19" />
     </linearGradient>
 
-    <!-- Outer Triangle Clip Paths & Gradients -->
-    <linearGradient id="greenLeftFacet" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#009F48" />
-      <stop offset="100%" stop-color="#00833D" />
+    <!-- Dark Inner Rim Shadow -->
+    <linearGradient id="goldInnerShadow" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#684C10" />
+      <stop offset="100%" stop-color="#3D2B05" />
     </linearGradient>
 
-    <linearGradient id="greenRightFacet" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#007936" />
-      <stop offset="100%" stop-color="#00632C" />
+    <!-- Left (Lit) Emerald Facet -->
+    <linearGradient id="greenLitFacet" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#009A49" />
+      <stop offset="60%" stop-color="#00833D" />
+      <stop offset="100%" stop-color="#007234" />
     </linearGradient>
 
-    <filter id="subtleShadow" x="-10%" y="-10%" width="120%" height="120%">
-      <feDropShadow dx="0" dy="8" stdDeviation="10" flood-color="#000000" flood-opacity="0.25" />
+    <!-- Right (Shaded) Forest Facet -->
+    <linearGradient id="greenShadeFacet" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#007436" />
+      <stop offset="50%" stop-color="#00632C" />
+      <stop offset="100%" stop-color="#005123" />
+    </linearGradient>
+
+    <filter id="softEmblemShadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="10" stdDeviation="12" flood-color="#000000" flood-opacity="0.30" />
     </filter>
 
-    <!-- Left Text Path: YAYASAN PENDIDIKAN (bottom-left curving up to apex) -->
-    <!-- Arc from (135, 780) curving up to (435, 145) -->
-    <path id="leftArc" d="M 85,785 C 60,630 195,300 455,100" fill="none" />
+    <!-- Arc for Left Text: YAYASAN PENDIDIKAN (bottom-left curving up to apex) -->
+    <path id="leftArc" d="M 85,810 C 65,640 210,310 460,110" fill="none" />
 
-    <!-- Right Text Path: KUSUMA BANGSA (apex curving down to bottom-right) -->
-    <!-- Arc from (545, 100) curving down to (915, 785) -->
-    <path id="rightArc" d="M 545,100 C 805,300 940,630 915,785" fill="none" />
-
-    <!-- Bottom Text Path: BOGOR -->
-    <!-- Arc from (190, 890) curving through center (500, 940) to (810, 890) -->
-    <path id="bottomArc" d="M 120,855 C 330,955 670,955 880,855" fill="none" />
+    <!-- Arc for Right Text: KUSUMA BANGSA (apex curving down to bottom-right) -->
+    <path id="rightArc" d="M 540,110 C 790,310 935,640 915,810" fill="none" />
   </defs>
 
-  <!-- Group with Drop Shadow -->
-  <g filter="url(#subtleShadow)">
-    <!-- 1. OUTER GOLD BORDER (Curved Reuleaux-like Rounded Triangle pointing UP) -->
-    <!-- Top rounded corner at (500, 30), Right rounded corner at (960, 860), Left rounded corner at (40, 860) -->
-    <path d="M 470,26 
-             C 485,12 515,12 530,26 
-             C 610,95 860,390 965,815 
-             C 976,855 955,890 915,905 
-             C 770,955 230,955 85,905 
-             C 45,890 24,855 35,815 
-             C 140,390 390,95 470,26 Z" 
-          fill="url(#goldGradient)" />
+  <g filter="url(#softEmblemShadow)">
+    <!-- 1. OUTER GOLD BORDER (Reuleaux Rounded Triangle) -->
+    <path d="M 470,25 
+             C 485,12 515,12 530,25 
+             C 610,95 860,390 965,835 
+             C 976,878 954,916 912,932 
+             C 765,988 235,988 88,932 
+             C 46,916 24,878 35,835 
+             C 140,390 390,95 470,25 Z" 
+          fill="url(#goldRimGradient)" />
 
-    <!-- 2. INNER GREEN BODY -->
-    <!-- Inset by ~36px -->
-    <g id="greenShield">
-      <!-- Base Green Shape -->
-      <clipPath id="shieldClip">
-        <path d="M 474,62 
-                 C 487,51 513,51 526,62 
-                 C 598,125 828,398 928,795 
-                 C 938,832 918,862 882,875 
-                 C 748,922 252,922 118,875 
-                 C 82,862 62,832 72,795 
-                 C 172,398 402,125 474,62 Z" />
+    <!-- Subtle Inner Gold Bevel Line -->
+    <path d="M 472,42 
+             C 486,29 514,29 528,42 
+             C 604,110 844,395 944,822 
+             C 954,862 934,896 896,910 
+             C 755,962 245,962 104,910 
+             C 66,896 46,862 56,822 
+             C 156,395 396,110 472,42 Z" 
+          fill="none" stroke="url(#goldInnerShadow)" stroke-width="3" opacity="0.6" />
+
+    <!-- 2. INNER GREEN SHIELD BODY -->
+    <g id="shieldInterior">
+      <clipPath id="greenInteriorClip">
+        <path d="M 474,58 
+                 C 487,46 513,46 526,58 
+                 C 598,122 830,400 928,810 
+                 C 938,848 918,880 882,893 
+                 C 748,942 252,942 118,893 
+                 C 82,880 62,848 72,810 
+                 C 170,400 402,122 474,58 Z" />
       </clipPath>
 
-      <g clip-path="url(#shieldClip)">
-        <!-- Left Facet (Brighter Emerald) -->
-        <path d="M 500,40 L 500,940 L 0,940 L 0,0 Z" fill="url(#greenLeftFacet)" />
-        
-        <!-- Right Facet (Darker Emerald) -->
-        <path d="M 500,40 L 500,940 L 1000,940 L 1000,0 Z" fill="url(#greenRightFacet)" />
+      <g clip-path="url(#greenInteriorClip)">
+        <!-- Left Side: Brighter Emerald -->
+        <rect x="0" y="0" width="500" height="1060" fill="url(#greenLitFacet)" />
+        <!-- Right Side: Darker Forest Green with Crisp Vertical Crease -->
+        <rect x="500" y="0" width="500" height="1060" fill="url(#greenShadeFacet)" />
 
-        <!-- Diagonal Facet Shadows for 3D depth -->
-        <polygon points="500,530 0,940 500,940" fill="#005A28" opacity="0.45" />
-        <polygon points="500,530 1000,940 500,940" fill="#004A20" opacity="0.65" />
-        <polygon points="500,530 500,40 1000,0" fill="#004A20" opacity="0.15" />
+        <!-- 3D Crease Shadows along the shield facets -->
+        <polygon points="500,520 0,980 500,980" fill="#004A20" opacity="0.30" />
+        <polygon points="500,520 1000,980 500,980" fill="#003515" opacity="0.55" />
+        <polygon points="500,520 500,40 1000,0" fill="#003010" opacity="0.25" />
       </g>
     </g>
 
-    <!-- 3. TEXT ALONG PERIMETER -->
-    <!-- Left Flank: YAYASAN PENDIDIKAN -->
-    <text fill="#FFFFFF" font-family="system-ui, -apple-system, 'Plus Jakarta Sans', Arial, sans-serif" font-weight="900" font-size="44" letter-spacing="4">
+    <!-- 3. PERIMETER TEXT IN BOLD SANS-SERIF -->
+    <!-- Left Arched Text: YAYASAN PENDIDIKAN -->
+    <text fill="#FFFFFF" 
+          font-family="system-ui, -apple-system, 'Plus Jakarta Sans', 'Montserrat', Arial, sans-serif" 
+          font-weight="900" 
+          font-size="44" 
+          letter-spacing="5">
       <textPath href="#leftArc" startOffset="50%" text-anchor="middle">
         YAYASAN PENDIDIKAN
       </textPath>
     </text>
 
-    <!-- Right Flank: KUSUMA BANGSA -->
-    <text fill="#FFFFFF" font-family="system-ui, -apple-system, 'Plus Jakarta Sans', Arial, sans-serif" font-weight="900" font-size="44" letter-spacing="4">
+    <!-- Right Arched Text: KUSUMA BANGSA -->
+    <text fill="#FFFFFF" 
+          font-family="system-ui, -apple-system, 'Plus Jakarta Sans', 'Montserrat', Arial, sans-serif" 
+          font-weight="900" 
+          font-size="44" 
+          letter-spacing="5">
       <textPath href="#rightArc" startOffset="50%" text-anchor="middle">
         KUSUMA BANGSA
       </textPath>
     </text>
 
-    <!-- Bottom Flank: ● BOGOR ● -->
+    <!-- Bottom Flank Text: ● B O G O R ● -->
     <g fill="#FFFFFF">
-      <circle cx="250" cy="862" r="21" />
-      <text x="500" y="904" text-anchor="middle" font-family="system-ui, -apple-system, 'Plus Jakarta Sans', Arial, sans-serif" font-weight="900" font-size="62" letter-spacing="16">
+      <!-- Left Bullet Dot -->
+      <circle cx="245" cy="875" r="23" />
+      <!-- BOGOR with prominent tracking -->
+      <text x="500" y="895" 
+            text-anchor="middle" 
+            font-family="system-ui, -apple-system, 'Plus Jakarta Sans', 'Montserrat', Arial, sans-serif" 
+            font-weight="900" 
+            font-size="62" 
+            letter-spacing="18">
         BOGOR
       </text>
-      <circle cx="750" cy="862" r="21" />
+      <!-- Right Bullet Dot -->
+      <circle cx="755" cy="875" r="23" />
     </g>
 
-    <!-- 4. INNER WHITE ROUNDED TRIANGULAR CONTOUR -->
-    <path d="M 478,205 
-             C 489,188 511,188 522,205 
-             C 582,298 732,548 792,725 
-             C 804,760 782,795 745,804 
-             C 630,830 370,830 255,804 
-             C 218,795 196,760 208,725 
-             C 268,548 418,298 478,205 Z" 
-          fill="none" 
-          stroke="#FFFFFF" 
-          stroke-width="19" 
-          stroke-linejoin="round" 
-          stroke-linecap="round" />
+    <!-- 4. INNER WHITE ROUNDED TRIANGULAR FRAME -->
+    <g>
+      <!-- Base White Triangular Frame -->
+      <path d="M 478,198 
+               C 489,180 511,180 522,198 
+               C 582,295 736,550 798,732 
+               C 810,768 788,804 750,814 
+               C 635,842 365,842 250,814 
+               C 212,804 190,768 202,732 
+               C 264,550 418,295 478,198 Z" 
+            fill="none" 
+            stroke="#FFFFFF" 
+            stroke-width="19" 
+            stroke-linejoin="round" 
+            stroke-linecap="round" />
+
+      <!-- Shadow on the Right Half of Inner White Frame (Matching 3D Crease) -->
+      <clipPath id="rightHalfClip">
+        <rect x="500" y="0" width="500" height="1060" />
+      </clipPath>
+      <path d="M 478,198 
+               C 489,180 511,180 522,198 
+               C 582,295 736,550 798,732 
+               C 810,768 788,804 750,814 
+               C 635,842 365,842 250,814 
+               C 212,804 190,768 202,732 
+               C 264,550 418,295 478,198 Z" 
+            fill="none" 
+            stroke="#000000" 
+            stroke-width="19" 
+            stroke-linejoin="round" 
+            stroke-linecap="round" 
+            clip-path="url(#rightHalfClip)" 
+            opacity="0.22" />
+    </g>
 
     <!-- 5. CENTER ISLAMIC GEOMETRIC STAR (8-Pointed Emblem / Rub el Hizb) -->
-    <g transform="translate(500, 505)">
-      <!-- Outer White 8-Pointed Star (Formed by two overlapping rounded squares) -->
-      <g stroke="#FFFFFF" stroke-width="18" fill="none">
-        <rect x="-155" y="-155" width="310" height="310" rx="14" />
-        <rect x="-155" y="-155" width="310" height="310" rx="14" transform="rotate(45)" />
+    <g transform="translate(500, 500)">
+      <!-- Outer White Star Outline (Overlapping Rounded Squares at 45 deg) -->
+      <g stroke="#FFFFFF" stroke-width="19" fill="none" stroke-linejoin="miter">
+        <rect x="-158" y="-158" width="316" height="316" rx="6" />
+        <rect x="-158" y="-158" width="316" height="316" rx="6" transform="rotate(45)" />
       </g>
 
-      <!-- Inner Green Geometric Tiles (8 Diamonds / Squares) -->
-      <!-- 4 Cardinal Green Squares -->
-      <g fill="#00843D">
-        <polygon points="0,-155 45,-110 0,-65 -45,-110" />
-        <polygon points="0,155 45,110 0,65 -45,110" />
-        <polygon points="-155,0 -110,-45 -65,0 -110,45" />
-        <polygon points="155,0 110,-45 65,0 110,45" />
+      <!-- 8 Green Diamond Tiles around Center (4 Cardinal, 4 Diagonal) -->
+      <!-- Cardinal Green Facets -->
+      <g fill="#00883D">
+        <polygon points="0,-158 48,-110 0,-62 -48,-110" />
+        <polygon points="0,158 48,110 0,62 -48,110" />
+        <polygon points="-158,0 -110,-48 -62,0 -110,48" />
+        <polygon points="158,0 110,-48 62,0 110,48" />
         
-        <!-- 4 Diagonal Green Squares -->
+        <!-- Diagonal Green Facets -->
         <g transform="rotate(45)">
-          <polygon points="0,-155 45,-110 0,-65 -45,-110" />
-          <polygon points="0,155 45,110 0,65 -45,110" />
-          <polygon points="-155,0 -110,-45 -65,0 -110,45" />
-          <polygon points="155,0 110,-45 65,0 110,45" />
+          <polygon points="0,-158 48,-110 0,-62 -48,-110" />
+          <polygon points="0,158 48,110 0,62 -48,110" />
+          <polygon points="-158,0 -110,-48 -62,0 -110,48" />
+          <polygon points="158,0 110,-48 62,0 110,48" />
         </g>
       </g>
 
-      <!-- Shading on Star for 3D realism -->
-      <g opacity="0.3" fill="#000000">
-        <polygon points="0,0 155,0 110,45 0,0" />
-        <polygon points="0,0 0,155 45,110 0,0" />
-        <polygon points="0,0 110,110 78,78 0,0" />
+      <!-- Shaded 3D Facet Overlay for Depth on Right Half -->
+      <g fill="#000000" opacity="0.30">
+        <polygon points="0,-158 48,-110 0,-62 0,-158" />
+        <polygon points="0,0 158,0 110,48 0,0" />
+        <polygon points="0,0 0,158 48,110 0,0" />
+        <polygon points="0,0 112,112 80,80 0,0" />
+        <polygon points="112,-112 80,-80 48,-110 80,-140" />
       </g>
 
-      <!-- Solid White 8-Pointed Central Star -->
-      <path d="M 0,-85 
-               L 24,-24 L 85,0 L 24,24 
-               L 0,85 
-               L -24,24 L -85,0 L -24,-24 Z" 
+      <!-- Solid Center White 8-Pointed Star -->
+      <path d="M 0,-88 
+               L 26,-26 L 88,0 L 26,26 
+               L 0,88 
+               L -26,26 L -88,0 L -26,-26 Z" 
             fill="#FFFFFF" />
       <g transform="rotate(45)">
-        <path d="M 0,-85 
-                 L 24,-24 L 85,0 L 24,24 
-                 L 0,85 
-                 L -24,24 L -85,0 L -24,-24 Z" 
+        <path d="M 0,-88 
+                 L 26,-26 L 88,0 L 26,26 
+                 L 0,88 
+                 L -26,26 L -88,0 L -26,-26 Z" 
               fill="#FFFFFF" />
+      </g>
+
+      <!-- Right Half Shading on the Star for 3D Crease -->
+      <clipPath id="starRightClip">
+        <rect x="0" y="-200" width="200" height="400" />
+      </clipPath>
+      <g clip-path="url(#starRightClip)" opacity="0.20">
+        <rect x="0" y="-200" width="200" height="400" fill="#000000" />
       </g>
     </g>
 
-    <!-- 6. WHITE ARABIC CALLIGRAPHY: كوسوما بغسى -->
-    <!-- Positioned elegantly below the 8-pointed star inside the white triangle -->
-    <g transform="translate(500, 735)" fill="#FFFFFF">
-      <!-- Flowing Arabic Text Script Kusuma Bangsa -->
-      <!-- Sub-paths for characters and flourishes -->
-      <!-- Main sweeping baseline flourishing to top right -->
-      <path d="M -215,-40 
-               C -215,-10 -205,8 -175,18 
-               C -140,28 -70,30 20,30 
-               C 110,30 180,15 240,-15 
-               C 260,-25 265,-30 258,-32 
-               C 252,-34 235,-20 180,-3 
-               C 120,15 50,16 -20,16 
-               C -100,16 -160,10 -185,-5 
-               C -198,-13 -200,-28 -200,-40 Z" />
-
-      <!-- Word 'Kusuma' (كوسوما) Calligraphy flourishes -->
-      <!-- Kaf stroke -->
-      <path d="M -215,-42 C -215,-60 -210,-72 -200,-72 C -192,-72 -192,-60 -195,-45 C -198,-32 -202,-20 -215,-42 Z" />
-      <!-- Seen teeth -->
-      <path d="M -160,-5 C -160,-20 -150,-24 -145,-15 C -142,-7 -140,-1 -133,-15 C -128,-23 -120,-18 -120,-5 Z" />
-      <!-- Waw & Meem loop -->
-      <path d="M -105,-2 C -105,-22 -75,-25 -75,-5 C -75,8 -105,10 -105,-2 Z M -95,-4 C -95,3 -82,2 -82,-5 C -82,-12 -95,-12 -95,-4 Z" />
-      <path d="M -60,0 C -60,-20 -30,-22 -30,-3 C -30,10 -60,12 -60,0 Z M -50,-2 C -50,5 -38,4 -38,-3 C -38,-10 -50,-10 -50,-2 Z" />
-
-      <!-- Word 'Bangsa' (بغسى) Calligraphy flourishes -->
-      <!-- Ba & Ghain loop & teeth -->
-      <path d="M 40,2 C 40,-18 70,-25 80,-8 C 88,6 60,18 40,2 Z M 52,-1 C 52,5 68,3 68,-4 C 68,-11 52,-9 52,-1 Z" />
-      <!-- Dot above Ghain -->
-      <circle cx="62" cy="-35" r="7" />
-      <!-- Dot below Ba -->
-      <circle cx="-5" cy="42" r="7" />
-
-      <!-- Sweeping Ya tail curve & top accent marks -->
-      <path d="M 120,-2 C 145,-12 175,-30 220,-60 C 230,-67 235,-65 230,-58 C 190,-15 150,5 120,-2 Z" />
+    <!-- 6. WHITE ARABIC CALLIGRAPHY: كوسوما بغسا (KUSUMA BANGSA) -->
+    <!-- Positioned inside the white triangle below the star -->
+    <g transform="translate(500, 742)" fill="#FFFFFF">
+      <!-- Upright Kaf vertical stroke with angled top-left spur -->
+      <path d="M -225,-60 
+               L -225,5 
+               C -225,12 -220,18 -212,18 
+               C -204,18 -200,12 -200,5 
+               L -200,-48 
+               L -210,-48 
+               L -218,-60 Z" />
       
-      <!-- Calligraphic accent flourishes -->
-      <path d="M -10,-12 C 5,-28 20,-32 15,-20 C 10,-8 -5,0 -10,-12 Z" />
-      <path d="M 140,-32 C 155,-44 165,-42 160,-34 C 150,-20 135,-22 140,-32 Z" />
+      <!-- Top stroke of Kaf pointing left -->
+      <path d="M -225,-42 
+               C -240,-48 -252,-52 -256,-50 
+               C -260,-48 -255,-42 -242,-36 
+               L -225,-30 Z" />
+
+      <!-- Sweeping Main Horizontal Calligraphic Baseline -->
+      <!-- From Kaf connecting through Seen, Waw, Meem, Ba, Ghain, Seen, Ya -->
+      <path d="M -215,8 
+               C -180,24 -120,28 -30,28 
+               C 60,28 140,16 205,-12 
+               C 240,-28 268,-48 264,-52 
+               C 260,-56 242,-44 195,-22 
+               C 135,4 60,8 -20,8 
+               C -110,8 -170,0 -198,-12 
+               C -208,-16 -214,-8 -215,8 Z" />
+
+      <!-- Teeth of Seen (س) in Kusuma -->
+      <path d="M -168,-4 
+               C -168,-22 -158,-26 -154,-14 
+               C -150,-6 -148,-2 -142,-14 
+               C -138,-22 -128,-18 -128,-4 
+               C -128,4 -168,4 -168,-4 Z" />
+
+      <!-- Waw & Meem Calligraphic Loops (و , م) -->
+      <ellipse cx="-96" cy="-8" rx="16" ry="12" />
+      <circle cx="-96" cy="-8" r="5" fill="#007936" />
+
+      <ellipse cx="-48" cy="-6" rx="15" ry="11" />
+      <circle cx="-48" cy="-6" r="4.5" fill="#007936" />
+
+      <!-- Word 'Bangsa' (بغسا): Ba, Ghain, Seen, Ya -->
+      <!-- Ba tooth & connecting stroke -->
+      <path d="M 15,2 C 15,-16 28,-22 34,-10 C 38,0 15,14 15,2 Z" />
+      <!-- Solid dot below Ba -->
+      <circle cx="12" cy="38" r="6.5" />
+
+      <!-- Ghain (غ) Center Loop -->
+      <ellipse cx="68" cy="-10" rx="17" ry="13" />
+      <circle cx="68" cy="-10" r="5.5" fill="#00632C" />
+      <!-- Solid dot above Ghain -->
+      <circle cx="68" cy="-38" r="7" />
+
+      <!-- Seen & Flowing Ya tail sweeping to the right -->
+      <path d="M 115,-4 
+               C 115,-20 126,-24 132,-12 
+               C 136,-4 138,0 144,-10 
+               C 148,-18 158,-14 158,-2 
+               C 158,10 115,8 115,-4 Z" />
+
+      <!-- Sweeping Ya Horn / Flourish to Top-Right -->
+      <path d="M 165,-8 
+               C 195,-24 235,-50 262,-72 
+               C 270,-78 274,-74 268,-68 
+               C 225,-26 182,-2 165,-8 Z" />
+
+      <!-- Right Half Shading on Calligraphy for 3D Crease -->
+      <clipPath id="calligraphyRightClip">
+        <rect x="0" y="-100" width="300" height="200" />
+      </clipPath>
+      <g clip-path="url(#calligraphyRightClip)" opacity="0.22">
+        <rect x="0" y="-100" width="300" height="200" fill="#000000" />
+      </g>
     </g>
   </g>
 </svg>
