@@ -199,25 +199,25 @@ export const App: React.FC = () => {
     });
 
     const unsubUsers = subscribeUsers((remoteUsers) => {
-      if (remoteUsers && remoteUsers.length > 0) {
+      if (remoteUsers) {
         setUsersList(remoteUsers);
       }
     });
 
     const unsubGuru = subscribeGuru((remoteGuru) => {
-      if (remoteGuru && remoteGuru.length > 0) {
+      if (remoteGuru) {
         setGuruList(remoteGuru);
       }
     });
 
     const unsubHonor = subscribeHonor((remoteHonor) => {
-      if (remoteHonor && remoteHonor.length > 0) {
+      if (remoteHonor) {
         setHonorList(remoteHonor);
       }
     });
 
     const unsubSiplah = subscribeSiplah((remoteSiplah) => {
-      if (remoteSiplah && remoteSiplah.length > 0) {
+      if (remoteSiplah) {
         setSiplahList(remoteSiplah);
       }
     });

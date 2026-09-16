@@ -5,6 +5,7 @@ import {
   doc,
   setDoc,
   deleteDoc,
+  getDoc,
   onSnapshot,
   getDocs,
   writeBatch,
@@ -33,55 +34,50 @@ export const USERS_COL = "users";
 export const GURU_COL = "guru";
 export const HONOR_COL = "honor";
 export const SIPLAH_COL = "siplah";
+export const SYSTEM_COL = "system";
 
-// Initialize and seed default data if collections are empty
+// Initialize and seed default data only once to prevent re-creating deleted records
 export async function initializeFirestoreData() {
   try {
-    // 1. Seed School Data
+    const initDoc = await getDoc(doc(db, SYSTEM_COL, "initialized"));
+    if (initDoc.exists()) {
+      return;
+    }
+
+    // Check if any existing collection has documents
     const schoolSnap = await getDocs(collection(db, SCHOOL_COL));
-    if (schoolSnap.empty) {
-      await setDoc(doc(db, SCHOOL_COL, "identitas"), initialSchoolData);
-    }
-
-    // 2. Seed Users
-    const usersSnap = await getDocs(collection(db, USERS_COL));
-    if (usersSnap.empty) {
-      const batch = writeBatch(db);
-      for (const u of initialUsersList) {
-        batch.set(doc(db, USERS_COL, u.id), u);
-      }
-      await batch.commit();
-    }
-
-    // 3. Seed Guru
-    const guruSnap = await getDocs(collection(db, GURU_COL));
-    if (guruSnap.empty) {
-      const batch = writeBatch(db);
-      for (const g of initialGuruList) {
-        batch.set(doc(db, GURU_COL, String(g.id)), g);
-      }
-      await batch.commit();
-    }
-
-    // 4. Seed Honor
     const honorSnap = await getDocs(collection(db, HONOR_COL));
-    if (honorSnap.empty) {
-      const batch = writeBatch(db);
-      for (const h of initialHonorList) {
-        batch.set(doc(db, HONOR_COL, String(h.id)), h);
-      }
-      await batch.commit();
+    const siplahSnap = await getDocs(collection(db, SIPLAH_COL));
+
+    if (!schoolSnap.empty || !honorSnap.empty || !siplahSnap.empty) {
+      // Database already has data, just set initialized flag
+      await setDoc(doc(db, SYSTEM_COL, "initialized"), {
+        initializedAt: new Date().toISOString(),
+      });
+      return;
     }
 
-    // 5. Seed SIPLah
-    const siplahSnap = await getDocs(collection(db, SIPLAH_COL));
-    if (siplahSnap.empty) {
-      const batch = writeBatch(db);
-      for (const s of initialSiplahList) {
-        batch.set(doc(db, SIPLAH_COL, String(s.id)), s);
-      }
-      await batch.commit();
+    // First time setup: seed initial defaults
+    const batch = writeBatch(db);
+    batch.set(doc(db, SCHOOL_COL, "identitas"), initialSchoolData);
+
+    for (const u of initialUsersList) {
+      batch.set(doc(db, USERS_COL, u.id), u);
     }
+    for (const g of initialGuruList) {
+      batch.set(doc(db, GURU_COL, String(g.id)), g);
+    }
+    for (const h of initialHonorList) {
+      batch.set(doc(db, HONOR_COL, String(h.id)), h);
+    }
+    for (const s of initialSiplahList) {
+      batch.set(doc(db, SIPLAH_COL, String(s.id)), s);
+    }
+    batch.set(doc(db, SYSTEM_COL, "initialized"), {
+      initializedAt: new Date().toISOString(),
+    });
+
+    await batch.commit();
   } catch (err) {
     console.error("Error initializing Firestore seed data:", err);
   }
@@ -108,9 +104,7 @@ export function subscribeUsers(callback: (users: AuthUser[]) => void) {
       snapshot.forEach((d) => {
         list.push({ ...d.data(), id: d.id } as AuthUser);
       });
-      if (list.length > 0) {
-        callback(list);
-      }
+      callback(list);
     },
     (err) => console.error("Realtime users subscription error:", err)
   );
@@ -124,10 +118,8 @@ export function subscribeGuru(callback: (guru: Guru[]) => void) {
       snapshot.forEach((d) => {
         list.push({ ...d.data(), id: Number(d.id) } as Guru);
       });
-      if (list.length > 0) {
-        list.sort((a, b) => a.id - b.id);
-        callback(list);
-      }
+      list.sort((a, b) => a.id - b.id);
+      callback(list);
     },
     (err) => console.error("Realtime guru subscription error:", err)
   );
@@ -141,10 +133,9 @@ export function subscribeHonor(callback: (honor: HonorEntry[]) => void) {
       snapshot.forEach((d) => {
         list.push({ ...d.data(), id: Number(d.id) } as HonorEntry);
       });
-      if (list.length > 0) {
-        list.sort((a, b) => a.id - b.id);
-        callback(list);
-      }
+      // Newest honor entries appear first
+      list.sort((a, b) => b.id - a.id);
+      callback(list);
     },
     (err) => console.error("Realtime honor subscription error:", err)
   );
@@ -158,16 +149,15 @@ export function subscribeSiplah(callback: (siplah: SiplahEntry[]) => void) {
       snapshot.forEach((d) => {
         list.push({ ...d.data(), id: Number(d.id) } as SiplahEntry);
       });
-      if (list.length > 0) {
-        list.sort((a, b) => a.id - b.id);
-        callback(list);
-      }
+      // Newest siplah transactions appear first
+      list.sort((a, b) => b.id - a.id);
+      callback(list);
     },
     (err) => console.error("Realtime siplah subscription error:", err)
   );
 }
 
-// MUTATION HELPERS
+// REALTIME ATOMIC MUTATION HELPERS
 export async function saveSchoolToDb(school: SchoolData) {
   try {
     await setDoc(doc(db, SCHOOL_COL, "identitas"), {
@@ -195,21 +185,71 @@ export async function deleteUserFromDb(userId: string) {
   }
 }
 
+export async function saveGuruToDb(guru: Guru) {
+  try {
+    await setDoc(doc(db, GURU_COL, String(guru.id)), guru);
+  } catch (err) {
+    console.error("Error saving guru to Firestore:", err);
+  }
+}
+
+export async function deleteGuruFromDb(guruId: number) {
+  try {
+    await deleteDoc(doc(db, GURU_COL, String(guruId)));
+  } catch (err) {
+    console.error("Error deleting guru from Firestore:", err);
+  }
+}
+
+export async function saveHonorToDb(entry: HonorEntry) {
+  try {
+    await setDoc(doc(db, HONOR_COL, String(entry.id)), entry);
+  } catch (err) {
+    console.error("Error saving honor to Firestore:", err);
+  }
+}
+
+export async function deleteHonorFromDb(honorId: number) {
+  try {
+    await deleteDoc(doc(db, HONOR_COL, String(honorId)));
+  } catch (err) {
+    console.error("Error deleting honor from Firestore:", err);
+  }
+}
+
+export async function saveSiplahToDb(entry: SiplahEntry) {
+  try {
+    await setDoc(doc(db, SIPLAH_COL, String(entry.id)), entry);
+  } catch (err) {
+    console.error("Error saving siplah to Firestore:", err);
+  }
+}
+
+export async function deleteSiplahFromDb(siplahId: number) {
+  try {
+    await deleteDoc(doc(db, SIPLAH_COL, String(siplahId)));
+  } catch (err) {
+    console.error("Error deleting siplah from Firestore:", err);
+  }
+}
+
 export async function syncGuruListToDb(nextList: Guru[], prevList?: Guru[]) {
   try {
-    const batch = writeBatch(db);
     if (prevList) {
       const nextIds = new Set(nextList.map((g) => g.id));
       for (const oldItem of prevList) {
         if (!nextIds.has(oldItem.id)) {
-          batch.delete(doc(db, GURU_COL, String(oldItem.id)));
+          await deleteDoc(doc(db, GURU_COL, String(oldItem.id)));
         }
       }
     }
+    const prevMap = prevList ? new Map(prevList.map((g) => [g.id, g])) : new Map();
     for (const g of nextList) {
-      batch.set(doc(db, GURU_COL, String(g.id)), g);
+      const old = prevMap.get(g.id);
+      if (!old || JSON.stringify(old) !== JSON.stringify(g)) {
+        await setDoc(doc(db, GURU_COL, String(g.id)), g);
+      }
     }
-    await batch.commit();
   } catch (err) {
     console.error("Error syncing guru list to Firestore:", err);
   }
@@ -217,19 +257,21 @@ export async function syncGuruListToDb(nextList: Guru[], prevList?: Guru[]) {
 
 export async function syncHonorListToDb(nextList: HonorEntry[], prevList?: HonorEntry[]) {
   try {
-    const batch = writeBatch(db);
     if (prevList) {
       const nextIds = new Set(nextList.map((h) => h.id));
       for (const oldItem of prevList) {
         if (!nextIds.has(oldItem.id)) {
-          batch.delete(doc(db, HONOR_COL, String(oldItem.id)));
+          await deleteDoc(doc(db, HONOR_COL, String(oldItem.id)));
         }
       }
     }
+    const prevMap = prevList ? new Map(prevList.map((h) => [h.id, h])) : new Map();
     for (const h of nextList) {
-      batch.set(doc(db, HONOR_COL, String(h.id)), h);
+      const old = prevMap.get(h.id);
+      if (!old || JSON.stringify(old) !== JSON.stringify(h)) {
+        await setDoc(doc(db, HONOR_COL, String(h.id)), h);
+      }
     }
-    await batch.commit();
   } catch (err) {
     console.error("Error syncing honor list to Firestore:", err);
   }
@@ -237,19 +279,21 @@ export async function syncHonorListToDb(nextList: HonorEntry[], prevList?: Honor
 
 export async function syncSiplahListToDb(nextList: SiplahEntry[], prevList?: SiplahEntry[]) {
   try {
-    const batch = writeBatch(db);
     if (prevList) {
       const nextIds = new Set(nextList.map((s) => s.id));
       for (const oldItem of prevList) {
         if (!nextIds.has(oldItem.id)) {
-          batch.delete(doc(db, SIPLAH_COL, String(oldItem.id)));
+          await deleteDoc(doc(db, SIPLAH_COL, String(oldItem.id)));
         }
       }
     }
+    const prevMap = prevList ? new Map(prevList.map((s) => [s.id, s])) : new Map();
     for (const s of nextList) {
-      batch.set(doc(db, SIPLAH_COL, String(s.id)), s);
+      const old = prevMap.get(s.id);
+      if (!old || JSON.stringify(old) !== JSON.stringify(s)) {
+        await setDoc(doc(db, SIPLAH_COL, String(s.id)), s);
+      }
     }
-    await batch.commit();
   } catch (err) {
     console.error("Error syncing siplah list to Firestore:", err);
   }

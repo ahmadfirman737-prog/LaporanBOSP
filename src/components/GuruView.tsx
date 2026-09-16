@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Plus, Trash2, GraduationCap, CreditCard, Award } from "lucide-react";
 import { Guru } from "../types";
 import { formatRupiah } from "../data/initialData";
+import { saveGuruToDb, deleteGuruFromDb } from "../lib/firebase";
 
 interface GuruViewProps {
   guruList: Guru[];
@@ -33,6 +34,7 @@ export const GuruView: React.FC<GuruViewProps> = ({ guruList, setGuruList, showT
     };
 
     setGuruList((prev) => [...prev, newGuru]);
+    saveGuruToDb(newGuru);
     showToast(`Data Guru/Tendik "${newGuru.nama}" berhasil ditambahkan!`);
 
     setNama("");
@@ -47,6 +49,7 @@ export const GuruView: React.FC<GuruViewProps> = ({ guruList, setGuruList, showT
       return;
     }
     setGuruList((prev) => prev.filter((g) => g.id !== id));
+    deleteGuruFromDb(id);
     showToast("Data Guru/Tendik berhasil dihapus", "info");
   };
 

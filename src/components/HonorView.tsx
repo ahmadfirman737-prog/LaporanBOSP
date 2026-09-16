@@ -2,6 +2,7 @@ import React, { useState, useMemo } from "react";
 import { Plus, Lock, Unlock, Trash2, ArrowDownLeft, Wallet } from "lucide-react";
 import { HonorEntry, Guru } from "../types";
 import { formatRupiah } from "../data/initialData";
+import { saveHonorToDb, deleteHonorFromDb } from "../lib/firebase";
 
 interface HonorViewProps {
   honorList: HonorEntry[];
@@ -59,6 +60,7 @@ export const HonorView: React.FC<HonorViewProps> = ({
     };
 
     setHonorList((prev) => [newEntry, ...prev]);
+    saveHonorToDb(newEntry);
     showToast("Data Honor Guru berhasil disimpan!");
   };
 
@@ -67,8 +69,10 @@ export const HonorView: React.FC<HonorViewProps> = ({
       prev.map((item) => {
         if (item.id === id) {
           const newLock = !item.isGajiLocked;
+          const updated = { ...item, isGajiLocked: newLock };
+          saveHonorToDb(updated);
           showToast(`Status gaji ${newLock ? "dikunci 🔒" : "dibuka 🔓"}`, "info");
-          return { ...item, isGajiLocked: newLock };
+          return updated;
         }
         return item;
       })
@@ -77,6 +81,7 @@ export const HonorView: React.FC<HonorViewProps> = ({
 
   const handleDelete = (id: number) => {
     setHonorList((prev) => prev.filter((item) => item.id !== id));
+    deleteHonorFromDb(id);
     showToast("Data honor berhasil dihapus", "info");
   };
 

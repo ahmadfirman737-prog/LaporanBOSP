@@ -2,6 +2,7 @@ import React, { useState, useMemo } from "react";
 import { Plus, Trash2, ArrowRightLeft, ShoppingBag } from "lucide-react";
 import { SiplahEntry } from "../types";
 import { formatRupiah } from "../data/initialData";
+import { saveSiplahToDb, deleteSiplahFromDb } from "../lib/firebase";
 
 interface SiplahViewProps {
   siplahList: SiplahEntry[];
@@ -46,6 +47,7 @@ export const SiplahView: React.FC<SiplahViewProps> = ({
     };
 
     setSiplahList((prev) => [newEntry, ...prev]);
+    saveSiplahToDb(newEntry);
     showToast("Transaksi Belanja SIPLah berhasil disimpan!");
 
     // Reset fields
@@ -58,6 +60,7 @@ export const SiplahView: React.FC<SiplahViewProps> = ({
 
   const handleDelete = (id: number) => {
     setSiplahList((prev) => prev.filter((item) => item.id !== id));
+    deleteSiplahFromDb(id);
     showToast("Transaksi SIPLah berhasil dihapus", "info");
   };
 
