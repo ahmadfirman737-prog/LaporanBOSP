@@ -94,13 +94,15 @@ export const App: React.FC = () => {
     }
   });
 
-  // Login status state
+  // Login status state: Always require login when accessing via link or starting a session
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(() => {
     try {
-      const saved = localStorage.getItem("bosp_is_logged_in");
-      return saved !== null ? JSON.parse(saved) : true;
+      // Clear legacy localStorage auto-login so opening the link directly goes to login
+      localStorage.removeItem("bosp_is_logged_in");
+      const sessionSaved = sessionStorage.getItem("bosp_is_logged_in");
+      return sessionSaved === "true";
     } catch {
-      return true;
+      return false;
     }
   });
 
@@ -322,7 +324,8 @@ export const App: React.FC = () => {
     setIsLoggedIn(true);
     try {
       localStorage.setItem("bosp_auth_user", JSON.stringify(user));
-      localStorage.setItem("bosp_is_logged_in", "true");
+      sessionStorage.setItem("bosp_is_logged_in", "true");
+      localStorage.removeItem("bosp_is_logged_in");
     } catch (e) {
       console.error(e);
     }
@@ -332,7 +335,8 @@ export const App: React.FC = () => {
   const handleLogout = () => {
     setIsLoggedIn(false);
     try {
-      localStorage.setItem("bosp_is_logged_in", "false");
+      sessionStorage.removeItem("bosp_is_logged_in");
+      localStorage.removeItem("bosp_is_logged_in");
     } catch (e) {
       console.error(e);
     }
