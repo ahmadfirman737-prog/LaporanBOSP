@@ -59,4 +59,13 @@ export interface AuthUser {
   lastLogin?: string;
 }
 
-export type TabType = "dashboard" | "honor" | "siplah" | "laporan" | "guru" | "users" | "pengaturan";
+export type TabType =
+  | "dashboard"
+  | "honor"
+  | "siplah"
+  | "laporan-honor"
+  | "laporan-siplah"
+  | "laporan"
+  | "guru"
+  | "users"
+  | "pengaturan";

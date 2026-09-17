@@ -1,7 +1,14 @@
 import React from "react";
-import { Printer, Download, FileSpreadsheet, CheckCircle2 } from "lucide-react";
+import {
+  Printer,
+  Download,
+  FileSpreadsheet,
+  CheckCircle2,
+  FileCheck,
+  ShoppingBag,
+} from "lucide-react";
 import * as XLSX from "xlsx";
-import { SchoolData, HonorEntry, SiplahEntry, Guru } from "../types";
+import { SchoolData, HonorEntry, SiplahEntry, Guru, TabType } from "../types";
 import { formatRupiah } from "../data/initialData";
 
 interface LaporanViewProps {
@@ -16,6 +23,7 @@ interface LaporanViewProps {
   totalSIPLahSI: number;
   totalSIPLahKembali: number;
   grandTotalPengembalian: number;
+  onNavigateTab?: (tab: TabType) => void;
   showToast: (message: string, type?: "success" | "info" | "warning" | "error") => void;
 }
 
@@ -31,6 +39,7 @@ export const LaporanView: React.FC<LaporanViewProps> = ({
   totalSIPLahSI,
   totalSIPLahKembali,
   grandTotalPengembalian,
+  onNavigateTab,
   showToast,
 }) => {
   const currentDate = new Intl.DateTimeFormat("id-ID", {
@@ -141,6 +150,41 @@ export const LaporanView: React.FC<LaporanViewProps> = ({
 
   return (
     <div className="space-y-6">
+      {/* Top Report Navigation Hub (Hidden in Print) */}
+      <div className="no-print bg-white p-4 rounded-3xl border border-slate-200/80 shadow-xs flex flex-wrap items-center justify-between gap-3">
+        <div className="flex items-center space-x-1.5 p-1 bg-slate-100/90 rounded-2xl">
+          <button
+            type="button"
+            onClick={() => onNavigateTab && onNavigateTab("laporan-honor")}
+            className="px-4 py-2 hover:bg-white text-slate-600 hover:text-indigo-600 font-bold text-xs rounded-xl transition flex items-center gap-2"
+          >
+            <FileCheck className="w-3.5 h-3.5" />
+            <span>Laporan Honor Guru</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => onNavigateTab && onNavigateTab("laporan-siplah")}
+            className="px-4 py-2 hover:bg-white text-slate-600 hover:text-indigo-600 font-bold text-xs rounded-xl transition flex items-center gap-2"
+          >
+            <ShoppingBag className="w-3.5 h-3.5" />
+            <span>Laporan Belanja SIPLah</span>
+          </button>
+          <button
+            type="button"
+            className="px-4 py-2 bg-indigo-600 text-white font-extrabold text-xs rounded-xl shadow-xs flex items-center gap-2"
+          >
+            <FileSpreadsheet className="w-3.5 h-3.5" />
+            <span>Rekapitulasi Gabungan BOSP</span>
+          </button>
+        </div>
+
+        {/* Paper Size Indicator */}
+        <div className="hidden lg:flex items-center gap-2 text-slate-500 text-xs font-semibold px-3 py-1.5 bg-slate-50 rounded-xl border border-slate-200/60">
+          <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+          <span>Format Cetak PDF: <strong>A4 Portrait</strong></span>
+        </div>
+      </div>
+
       {/* Action Bar (Hidden during print) */}
       <div className="no-print bg-white p-5 rounded-3xl border border-slate-200/80 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-4">
         <div>
@@ -149,7 +193,7 @@ export const LaporanView: React.FC<LaporanViewProps> = ({
             <span>Dokumen Laporan Resmi Realisasi & Pengembalian Dana BOSP</span>
           </h2>
           <p className="text-xs text-slate-500 font-medium mt-0.5">
-            Format resmi siap cetak ke kertas atau diekspor ke Microsoft Excel (.xlsx)
+            Format resmi siap cetak ke kertas A4 atau diekspor ke Microsoft Excel (.xlsx)
           </p>
         </div>
 
@@ -166,13 +210,13 @@ export const LaporanView: React.FC<LaporanViewProps> = ({
             className="flex-1 sm:flex-none px-5 py-2.5 bg-slate-900 hover:bg-slate-800 text-white font-bold rounded-2xl text-xs shadow-md transition flex items-center justify-center space-x-2"
           >
             <Printer className="w-4 h-4 text-indigo-400" />
-            <span>Cetak / Cetak PDF</span>
+            <span>Cetak PDF (A4)</span>
           </button>
         </div>
       </div>
 
-      {/* Printable Sheet Container */}
-      <div className="bg-white p-8 md:p-12 rounded-3xl shadow-sm border border-slate-200/90 text-slate-800 print:p-0 print:border-none print:shadow-none">
+      {/* Printable Sheet Container (Optimized for A4) */}
+      <div className="print-sheet-a4 bg-white p-8 md:p-12 rounded-3xl shadow-sm border border-slate-200/90 text-slate-800 print:p-0 print:border-none print:shadow-none">
         {/* Kop Surat Resmi */}
         <div className="flex items-center gap-5 pb-5 border-b-4 border-slate-900 mb-6">
           <img
@@ -393,8 +437,8 @@ export const LaporanView: React.FC<LaporanViewProps> = ({
           </div>
         </div>
 
-        {/* Tanda Tangan Resmi */}
-        <div className="mt-12 pt-6 grid grid-cols-2 text-center text-xs font-medium text-slate-900 gap-8">
+        {/* Tanda Tangan Resmi (A4 Kept Intact) */}
+        <div className="print-signature-block mt-12 pt-6 grid grid-cols-2 text-center text-xs font-medium text-slate-900 gap-8">
           <div>
             <p className="mb-20">
               Mengetahui,

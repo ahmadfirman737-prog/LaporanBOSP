@@ -62,8 +62,12 @@ export const HeaderBar: React.FC<HeaderBarProps> = ({
         return "Pencairan Honor Guru & Tendik";
       case "siplah":
         return "Realisasi Belanja SIPLah";
+      case "laporan-honor":
+        return "Laporan Realisasi Honor Guru (A4)";
+      case "laporan-siplah":
+        return "Laporan Realisasi Belanja SIPLah (A4)";
       case "laporan":
-        return "Laporan & Ekspor Keuangan";
+        return "Rekapitulasi Gabungan BOSP (A4)";
       case "guru":
         return "Master Data Guru & Tendik";
       case "users":

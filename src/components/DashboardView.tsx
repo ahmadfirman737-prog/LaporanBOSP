@@ -10,6 +10,8 @@ import {
   ArrowRight,
   Store,
   Wallet,
+  FileCheck,
+  ReceiptText,
 } from "lucide-react";
 import { SchoolData, HonorEntry, SiplahEntry, Guru, TabType } from "../types";
 import { formatRupiah } from "../data/initialData";
@@ -74,20 +76,30 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             </div>
           </div>
 
-          <div className="flex flex-wrap gap-3">
+          <div className="flex flex-wrap gap-2.5">
             <button
-              onClick={() => setActiveTab("laporan")}
-              className="px-5 py-2.5 bg-slate-900 hover:bg-slate-800 text-white font-bold rounded-2xl text-xs shadow-md transition flex items-center space-x-2"
+              onClick={() => setActiveTab("laporan-honor")}
+              className="px-3.5 py-2.5 bg-slate-100 hover:bg-indigo-50 text-slate-700 hover:text-indigo-700 font-bold rounded-2xl text-xs transition border border-slate-200/80 flex items-center space-x-2"
+              title="Buka Laporan Honor Guru format A4"
             >
-              <Printer className="w-4 h-4 text-indigo-400" />
-              <span>Cetak / Download PDF</span>
+              <FileCheck className="w-4 h-4 text-indigo-600" />
+              <span>Laporan Honor (A4)</span>
             </button>
             <button
-              onClick={() => setActiveTab("honor")}
-              className="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-2xl text-xs transition flex items-center space-x-2 shadow-md shadow-indigo-600/20"
+              onClick={() => setActiveTab("laporan-siplah")}
+              className="px-3.5 py-2.5 bg-slate-100 hover:bg-emerald-50 text-slate-700 hover:text-emerald-700 font-bold rounded-2xl text-xs transition border border-slate-200/80 flex items-center space-x-2"
+              title="Buka Laporan Belanja SIPLah format A4"
             >
-              <Plus className="w-4 h-4" />
-              <span>Tambah Honor</span>
+              <ReceiptText className="w-4 h-4 text-emerald-600" />
+              <span>Laporan SIPLah (A4)</span>
+            </button>
+            <button
+              onClick={() => setActiveTab("laporan")}
+              className="px-4 py-2.5 bg-slate-900 hover:bg-slate-800 text-white font-bold rounded-2xl text-xs shadow-sm transition flex items-center space-x-2"
+              title="Cetak Dokumen Rekapitulasi Gabungan BOSP"
+            >
+              <Printer className="w-4 h-4 text-indigo-400" />
+              <span>Rekap BOSP</span>
             </button>
           </div>
         </div>

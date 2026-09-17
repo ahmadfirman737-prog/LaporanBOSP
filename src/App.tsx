@@ -21,6 +21,8 @@ import { DashboardView } from "./components/DashboardView";
 import { HonorView } from "./components/HonorView";
 import { SiplahView } from "./components/SiplahView";
 import { LaporanView } from "./components/LaporanView";
+import { LaporanHonorView } from "./components/LaporanHonorView";
+import { LaporanSiplahView } from "./components/LaporanSiplahView";
 import { GuruView } from "./components/GuruView";
 import { PengaturanView } from "./components/PengaturanView";
 import { UserManagementView } from "./components/UserManagementView";
@@ -455,6 +457,25 @@ export const App: React.FC = () => {
             />
           )}
 
+          {activeTab === "laporan-honor" && (
+            <LaporanHonorView
+              school={school}
+              honorList={honorList}
+              guruList={guruList}
+              onNavigateTab={setActiveTab}
+              showToast={showToast}
+            />
+          )}
+
+          {activeTab === "laporan-siplah" && (
+            <LaporanSiplahView
+              school={school}
+              siplahList={siplahList}
+              onNavigateTab={setActiveTab}
+              showToast={showToast}
+            />
+          )}
+
           {activeTab === "laporan" && (
             <LaporanView
               school={school}
@@ -468,6 +489,7 @@ export const App: React.FC = () => {
               totalSIPLahSI={totalSIPLahSI}
               totalSIPLahKembali={totalSIPLahKembali}
               grandTotalPengembalian={grandTotalPengembalian}
+              onNavigateTab={setActiveTab}
               showToast={showToast}
             />
           )}

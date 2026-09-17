@@ -10,6 +10,8 @@ import {
   ShieldCheck,
   UserCog,
   Cloud,
+  FileCheck,
+  ReceiptText,
 } from "lucide-react";
 import { SchoolData, TabType } from "../types";
 
@@ -25,6 +27,17 @@ interface SidebarProps {
   setIsOpen: (open: boolean) => void;
 }
 
+interface NavSection {
+  title: string;
+  items: {
+    id: TabType;
+    label: string;
+    icon: React.ElementType;
+    badge?: number;
+    badgeColor?: string;
+  }[];
+}
+
 export const Sidebar: React.FC<SidebarProps> = ({
   activeTab,
   setActiveTab,
@@ -36,14 +49,50 @@ export const Sidebar: React.FC<SidebarProps> = ({
   isOpen,
   setIsOpen,
 }) => {
-  const navItems: { id: TabType; label: string; icon: React.ElementType; badge?: number }[] = [
-    { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
-    { id: "honor", label: "Menu Honor Guru", icon: HandCoins, badge: honorCount },
-    { id: "siplah", label: "Menu SIPLah", icon: ShoppingBag, badge: siplahCount },
-    { id: "laporan", label: "Menu Laporan", icon: FileSpreadsheet },
-    { id: "guru", label: "Guru & Tendik", icon: GraduationCap, badge: guruCount },
-    { id: "users", label: "Manajemen User", icon: UserCog, badge: userCount },
-    { id: "pengaturan", label: "Identitas Sekolah", icon: School },
+  const navSections: NavSection[] = [
+    {
+      title: "Ringkasan",
+      items: [
+        { id: "dashboard", label: "Dashboard Utama", icon: LayoutDashboard },
+      ],
+    },
+    {
+      title: "Transaksi Dana",
+      items: [
+        { id: "honor", label: "Pencairan Honor Guru", icon: HandCoins, badge: honorCount },
+        { id: "siplah", label: "Belanja SIPLah", icon: ShoppingBag, badge: siplahCount },
+      ],
+    },
+    {
+      title: "Dokumen Laporan",
+      items: [
+        {
+          id: "laporan-honor",
+          label: "Laporan Honor Guru",
+          icon: FileCheck,
+          badgeColor: "bg-indigo-100 text-indigo-700",
+        },
+        {
+          id: "laporan-siplah",
+          label: "Laporan Belanja SIPLah",
+          icon: ReceiptText,
+          badgeColor: "bg-emerald-100 text-emerald-700",
+        },
+        {
+          id: "laporan",
+          label: "Rekap Gabungan BOSP",
+          icon: FileSpreadsheet,
+        },
+      ],
+    },
+    {
+      title: "Master & Pengaturan",
+      items: [
+        { id: "guru", label: "Guru & Tendik", icon: GraduationCap, badge: guruCount },
+        { id: "users", label: "Manajemen User", icon: UserCog, badge: userCount },
+        { id: "pengaturan", label: "Identitas Sekolah", icon: School },
+      ],
+    },
   ];
 
   return (
@@ -92,48 +141,54 @@ export const Sidebar: React.FC<SidebarProps> = ({
           </div>
 
           {/* Nav List */}
-          <nav className="p-3.5 space-y-1.5">
-            <p className="px-3 text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-2">
-              Navigasi Utama
-            </p>
-            {navItems.map((item) => {
-              const isActive = activeTab === item.id;
-              const Icon = item.icon;
-              return (
-                <button
-                  key={item.id}
-                  onClick={() => {
-                    setActiveTab(item.id);
-                    setIsOpen(false);
-                  }}
-                  className={`w-full flex items-center justify-between px-4 py-3 rounded-2xl text-xs font-semibold transition-all duration-200 group ${
-                    isActive
-                      ? "bg-indigo-600 text-white shadow-lg shadow-indigo-600/25 font-bold"
-                      : "text-slate-600 hover:text-slate-900 hover:bg-slate-100/80"
-                  }`}
-                >
-                  <div className="flex items-center space-x-3">
-                    <Icon
-                      className={`w-4 h-4 ${
-                        isActive ? "text-white" : "text-slate-400 group-hover:text-indigo-600"
-                      } transition`}
-                    />
-                    <span>{item.label}</span>
-                  </div>
-                  {item.badge !== undefined && (
-                    <span
-                      className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
+          <nav className="p-3.5 space-y-4">
+            {navSections.map((section) => (
+              <div key={section.title} className="space-y-1">
+                <p className="px-3 text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                  {section.title}
+                </p>
+                {section.items.map((item) => {
+                  const isActive = activeTab === item.id;
+                  const Icon = item.icon;
+                  return (
+                    <button
+                      key={item.id}
+                      onClick={() => {
+                        setActiveTab(item.id);
+                        setIsOpen(false);
+                      }}
+                      className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-all duration-150 group ${
                         isActive
-                          ? "bg-white/20 text-white"
-                          : "bg-slate-100 text-slate-600 border border-slate-200/60"
+                          ? "bg-indigo-600 text-white shadow-md shadow-indigo-600/25 font-bold"
+                          : "text-slate-600 hover:text-slate-900 hover:bg-slate-100/80"
                       }`}
                     >
-                      {item.badge}
-                    </span>
-                  )}
-                </button>
-              );
-            })}
+                      <div className="flex items-center space-x-2.5">
+                        <Icon
+                          className={`w-4 h-4 shrink-0 ${
+                            isActive
+                              ? "text-white"
+                              : "text-slate-400 group-hover:text-indigo-600"
+                          } transition`}
+                        />
+                        <span className="truncate">{item.label}</span>
+                      </div>
+                      {item.badge !== undefined && (
+                        <span
+                          className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                            isActive
+                              ? "bg-white/20 text-white"
+                              : "bg-slate-100 text-slate-600 border border-slate-200/60"
+                          }`}
+                        >
+                          {item.badge}
+                        </span>
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+            ))}
           </nav>
         </div>
 
