@@ -203,7 +203,14 @@ export async function deleteGuruFromDb(guruId: number) {
 
 export async function saveHonorToDb(entry: HonorEntry) {
   try {
-    await setDoc(doc(db, HONOR_COL, String(entry.id)), entry);
+    const cleanEntry: any = { ...entry };
+    if (cleanEntry.tanggalPengembalian === undefined) {
+      delete cleanEntry.tanggalPengembalian;
+    }
+    if (cleanEntry.jumlahDikembalikan === undefined) {
+      cleanEntry.jumlahDikembalikan = 0;
+    }
+    await setDoc(doc(db, HONOR_COL, String(entry.id)), cleanEntry);
   } catch (err) {
     console.error("Error saving honor to Firestore:", err);
   }

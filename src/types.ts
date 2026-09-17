@@ -27,6 +27,9 @@ export interface HonorEntry {
   isGajiLocked: boolean;
   jumlahSI: number;
   keterangan: string;
+  statusPengembalian?: "belum" | "sudah";
+  tanggalPengembalian?: string;
+  jumlahDikembalikan?: number;
 }
 
 export interface SiplahEntry {
@@ -65,6 +68,7 @@ export type TabType =
   | "siplah"
   | "laporan-honor"
   | "laporan-siplah"
+  | "laporan-pengembalian"
   | "laporan"
   | "guru"
   | "users"

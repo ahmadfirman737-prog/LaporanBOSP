@@ -23,6 +23,7 @@ import { SiplahView } from "./components/SiplahView";
 import { LaporanView } from "./components/LaporanView";
 import { LaporanHonorView } from "./components/LaporanHonorView";
 import { LaporanSiplahView } from "./components/LaporanSiplahView";
+import { LaporanPengembalianView } from "./components/LaporanPengembalianView";
 import { GuruView } from "./components/GuruView";
 import { PengaturanView } from "./components/PengaturanView";
 import { UserManagementView } from "./components/UserManagementView";
@@ -475,6 +476,17 @@ export const App: React.FC = () => {
             <LaporanSiplahView
               school={school}
               siplahList={siplahList}
+              onNavigateTab={setActiveTab}
+              showToast={showToast}
+            />
+          )}
+
+          {activeTab === "laporan-pengembalian" && (
+            <LaporanPengembalianView
+              school={school}
+              honorList={honorList}
+              siplahList={siplahList}
+              guruList={guruList}
               onNavigateTab={setActiveTab}
               showToast={showToast}
             />

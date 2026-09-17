@@ -12,6 +12,7 @@ import {
   Wallet,
   FileCheck,
   ReceiptText,
+  Landmark,
 } from "lucide-react";
 import { SchoolData, HonorEntry, SiplahEntry, Guru, TabType } from "../types";
 import { formatRupiah } from "../data/initialData";
@@ -94,6 +95,14 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               <span>Laporan SIPLah (A4)</span>
             </button>
             <button
+              onClick={() => setActiveTab("laporan-pengembalian")}
+              className="px-3.5 py-2.5 bg-teal-50 hover:bg-teal-100 text-teal-800 font-bold rounded-2xl text-xs transition border border-teal-200/80 flex items-center space-x-2"
+              title="Buka Laporan Dana Yang Sudah Dikembalikan ke Sekolah (Total Keseluruhan)"
+            >
+              <Landmark className="w-4 h-4 text-teal-600" />
+              <span>Dana Dikembalikan</span>
+            </button>
+            <button
               onClick={() => setActiveTab("laporan")}
               className="px-4 py-2.5 bg-slate-900 hover:bg-slate-800 text-white font-bold rounded-2xl text-xs shadow-sm transition flex items-center space-x-2"
               title="Cetak Dokumen Rekapitulasi Gabungan BOSP"
@@ -127,9 +136,25 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                 <strong className="text-slate-700">{formatRupiah(totalHonorGaji)}</strong>
               </div>
               <div className="flex justify-between font-bold text-amber-600">
-                <span>Total Kembalian:</span>
+                <span>Wajib Dikembalikan:</span>
                 <span>{formatRupiah(totalHonorKembali)}</span>
               </div>
+              {(() => {
+                const belum = honorList.reduce((acc, h) => {
+                  const s = Math.max(0, Number(h.jumlahSI) - Number(h.gaji));
+                  return h.statusPengembalian !== "sudah" ? acc + s : acc;
+                }, 0);
+                const sudah = honorList.reduce((acc, h) => {
+                  const s = Math.max(0, Number(h.jumlahSI) - Number(h.gaji));
+                  return h.statusPengembalian === "sudah" ? acc + s : acc;
+                }, 0);
+                return (
+                  <div className="flex justify-between text-[11px] pt-1 text-slate-400 border-t border-slate-100/60 font-medium">
+                    <span className="text-amber-700 font-semibold">Belum: {formatRupiah(belum)}</span>
+                    <span className="text-emerald-700 font-semibold">Sudah: {formatRupiah(sudah)}</span>
+                  </div>
+                );
+              })()}
             </div>
           </div>
         </div>
@@ -176,6 +201,13 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             <p className="text-xs text-amber-100 mt-2 font-medium leading-relaxed">
               Akumulasi selisih dana SI yang harus disetorkan kembali ke Rekening Kas Sekolah / BOSP.
             </p>
+            <button
+              onClick={() => setActiveTab("laporan-pengembalian")}
+              className="mt-3.5 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/20 hover:bg-white text-white hover:text-amber-900 font-bold text-xs transition shadow-xs"
+            >
+              <span>Buka Laporan Dana Dikembalikan</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </button>
           </div>
         </div>
       </div>
@@ -215,15 +247,19 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                     </p>
                   </div>
                   <div>
-                    <span
-                      className={`px-3 py-1 rounded-xl font-bold text-[11px] ${
-                        kembali > 0
-                          ? "bg-amber-100 text-amber-800"
-                          : "bg-emerald-100 text-emerald-800"
-                      }`}
-                    >
-                      {kembali > 0 ? `Kembali ${formatRupiah(kembali)}` : "Sesuai Gaji"}
-                    </span>
+                    {kembali === 0 ? (
+                      <span className="px-2.5 py-1 rounded-xl font-bold text-[10px] bg-slate-100 text-slate-600">
+                        Sesuai Gaji
+                      </span>
+                    ) : item.statusPengembalian === "sudah" ? (
+                      <span className="px-2.5 py-1 rounded-xl font-bold text-[10px] bg-emerald-100 text-emerald-800 border border-emerald-200/80">
+                        ✓ Sudah Setor: {formatRupiah(kembali)}
+                      </span>
+                    ) : (
+                      <span className="px-2.5 py-1 rounded-xl font-bold text-[10px] bg-amber-100 text-amber-800 border border-amber-200/80">
+                        ⏳ Belum Setor: {formatRupiah(kembali)}
+                      </span>
+                    )}
                   </div>
                 </div>
               );

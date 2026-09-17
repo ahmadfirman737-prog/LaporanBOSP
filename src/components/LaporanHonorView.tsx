@@ -10,6 +10,7 @@ import {
   RotateCcw,
   ShoppingBag,
   FileSpreadsheet,
+  Landmark,
 } from "lucide-react";
 import * as XLSX from "xlsx";
 import { SchoolData, HonorEntry, Guru, TabType } from "../types";
@@ -31,7 +32,7 @@ export const LaporanHonorView: React.FC<LaporanHonorViewProps> = ({
   showToast,
 }) => {
   const [selectedBulan, setSelectedBulan] = useState<string>("all");
-  const [statusFilter, setStatusFilter] = useState<"all" | "kembali" | "nihil">("all");
+  const [statusFilter, setStatusFilter] = useState<"all" | "belum" | "sudah" | "nihil">("all");
   const [searchTerm, setSearchTerm] = useState<string>("");
 
   const currentDate = new Intl.DateTimeFormat("id-ID", {
@@ -64,10 +65,16 @@ export const LaporanHonorView: React.FC<LaporanHonorViewProps> = ({
       const monthMatch = selectedBulan === "all" || item.bulan === selectedBulan;
 
       const kembali = Math.max(0, Number(item.jumlahSI) - Number(item.gaji));
-      const statusMatch =
-        statusFilter === "all" ||
-        (statusFilter === "kembali" && kembali > 0) ||
-        (statusFilter === "nihil" && kembali === 0);
+      const isSudah = item.statusPengembalian === "sudah";
+
+      let statusMatch = true;
+      if (statusFilter === "belum") {
+        statusMatch = kembali > 0 && !isSudah;
+      } else if (statusFilter === "sudah") {
+        statusMatch = kembali > 0 && isSudah;
+      } else if (statusFilter === "nihil") {
+        statusMatch = kembali === 0;
+      }
 
       return searchMatch && monthMatch && statusMatch;
     });
@@ -93,6 +100,36 @@ export const LaporanHonorView: React.FC<LaporanHonorViewProps> = ({
     [filteredHonor]
   );
 
+  const totalBelumKembali = useMemo(
+    () =>
+      filteredHonor.reduce((sum, h) => {
+        const kembali = Math.max(0, Number(h.jumlahSI || 0) - Number(h.gaji || 0));
+        const dikembalikan =
+          h.jumlahDikembalikan !== undefined
+            ? Number(h.jumlahDikembalikan)
+            : h.statusPengembalian === "sudah"
+            ? kembali
+            : 0;
+        return sum + Math.max(0, kembali - dikembalikan);
+      }, 0),
+    [filteredHonor]
+  );
+
+  const totalSudahKembali = useMemo(
+    () =>
+      filteredHonor.reduce((sum, h) => {
+        const kembali = Math.max(0, Number(h.jumlahSI || 0) - Number(h.gaji || 0));
+        const dikembalikan =
+          h.jumlahDikembalikan !== undefined
+            ? Number(h.jumlahDikembalikan)
+            : h.statusPengembalian === "sudah"
+            ? kembali
+            : 0;
+        return sum + dikembalikan;
+      }, 0),
+    [filteredHonor]
+  );
+
   const handlePrint = () => {
     window.print();
   };
@@ -102,6 +139,26 @@ export const LaporanHonorView: React.FC<LaporanHonorViewProps> = ({
       const rows = filteredHonor.map((item, idx) => {
         const guru = guruList.find((g) => g.id === Number(item.idGuru));
         const kembali = Math.max(0, Number(item.jumlahSI) - Number(item.gaji));
+        const dikembalikan =
+          item.jumlahDikembalikan !== undefined
+            ? Number(item.jumlahDikembalikan)
+            : item.statusPengembalian === "sudah"
+            ? kembali
+            : 0;
+        const sisa = Math.max(0, kembali - dikembalikan);
+        const isLunas = kembali > 0 && sisa === 0;
+
+        let statusText = "Sesuai / Nihil";
+        if (kembali > 0) {
+          if (isLunas) {
+            statusText = `Sudah Lunas ${item.tanggalPengembalian ? `(${item.tanggalPengembalian})` : ""}`;
+          } else if (dikembalikan > 0) {
+            statusText = `Belum Lunas (Sisa: ${formatRupiah(sisa)})`;
+          } else {
+            statusText = "Belum Dikembalikan (Wajib Setor)";
+          }
+        }
+
         return {
           No: idx + 1,
           "Nama Guru / Tendik": guru?.nama || "Guru",
@@ -111,7 +168,9 @@ export const LaporanHonorView: React.FC<LaporanHonorViewProps> = ({
           "Hak Gaji Riil (Rp)": Number(item.gaji),
           "Pencairan di SI (Rp)": Number(item.jumlahSI),
           "Wajib Dikembalikan ke Kas (Rp)": kembali,
-          Status: kembali > 0 ? "Ada Pengembalian" : "Sesuai / Nihil",
+          "Jumlah Yang Dikembalikan (Rp)": dikembalikan,
+          "Sisa Belum Dikembalikan (Rp)": sisa,
+          "Status Pengembalian": statusText,
           Keterangan: item.keterangan || "-",
         };
       });
@@ -126,7 +185,9 @@ export const LaporanHonorView: React.FC<LaporanHonorViewProps> = ({
         "Hak Gaji Riil (Rp)": totalHakGaji,
         "Pencairan di SI (Rp)": totalCairSI,
         "Wajib Dikembalikan ke Kas (Rp)": totalPengembalian,
-        Status: "",
+        "Jumlah Yang Dikembalikan (Rp)": totalSudahKembali,
+        "Sisa Belum Dikembalikan (Rp)": totalBelumKembali,
+        "Status Pengembalian": `Belum: ${formatRupiah(totalBelumKembali)} | Sudah: ${formatRupiah(totalSudahKembali)}`,
         Keterangan: "",
       });
 
@@ -143,6 +204,8 @@ export const LaporanHonorView: React.FC<LaporanHonorViewProps> = ({
         { Parameter: "Total Hak Gaji", Nilai: totalHakGaji },
         { Parameter: "Total Pencairan SI", Nilai: totalCairSI },
         { Parameter: "Total Wajib Dikembalikan", Nilai: totalPengembalian },
+        { Parameter: "Jumlah Yang Sudah Dikembalikan", Nilai: totalSudahKembali },
+        { Parameter: "Sisa Dana Belum Dikembalikan", Nilai: totalBelumKembali },
         { Parameter: "Tanggal Cetak", Nilai: currentDate },
       ];
       const wsMeta = XLSX.utils.json_to_sheet(meta);
@@ -180,6 +243,14 @@ export const LaporanHonorView: React.FC<LaporanHonorViewProps> = ({
           >
             <ShoppingBag className="w-3.5 h-3.5" />
             <span>Laporan Belanja SIPLah</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => onNavigateTab("laporan-pengembalian")}
+            className="px-4 py-2 hover:bg-white text-slate-600 hover:text-indigo-600 font-bold text-xs rounded-xl transition flex items-center gap-2"
+          >
+            <Landmark className="w-3.5 h-3.5" />
+            <span>Dana Dikembalikan (Total)</span>
           </button>
           <button
             type="button"
@@ -273,25 +344,34 @@ export const LaporanHonorView: React.FC<LaporanHonorViewProps> = ({
               className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-700 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
             >
               <option value="all">Semua Status Pengembalian</option>
-              <option value="kembali">Wajib Dikembalikan (&gt; Rp 0)</option>
+              <option value="belum">⏳ Belum Dikembalikan (Wajib Setor)</option>
+              <option value="sudah">✓ Sudah Dikembalikan ke Kas</option>
               <option value="nihil">Sesuai / Nihil (Rp 0)</option>
             </select>
           </div>
         </div>
 
         {/* Financial Stat Pills */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 pt-1">
           <div className="p-3 bg-slate-50 rounded-2xl border border-slate-200/70">
             <span className="text-[11px] font-bold text-slate-500 uppercase">Total Hak Gaji Riil</span>
             <p className="text-base font-black text-slate-900 mt-0.5">{formatRupiah(totalHakGaji)}</p>
           </div>
           <div className="p-3 bg-indigo-50/70 rounded-2xl border border-indigo-100">
-            <span className="text-[11px] font-bold text-indigo-700 uppercase">Total Pencairan SI Bank</span>
+            <span className="text-[11px] font-bold text-indigo-700 uppercase">Total Pencairan SI</span>
             <p className="text-base font-black text-indigo-900 mt-0.5">{formatRupiah(totalCairSI)}</p>
           </div>
+          <div className="p-3 bg-rose-50/80 rounded-2xl border border-rose-200">
+            <span className="text-[11px] font-bold text-rose-800 uppercase">Harus Dikembalikan</span>
+            <p className="text-base font-black text-rose-900 mt-0.5">{formatRupiah(totalPengembalian)}</p>
+          </div>
+          <div className="p-3 bg-emerald-50 rounded-2xl border border-emerald-200">
+            <span className="text-[11px] font-bold text-emerald-800 uppercase">✓ Sudah Dikembalikan</span>
+            <p className="text-base font-black text-emerald-900 mt-0.5">{formatRupiah(totalSudahKembali)}</p>
+          </div>
           <div className="p-3 bg-amber-50 rounded-2xl border border-amber-200">
-            <span className="text-[11px] font-bold text-amber-800 uppercase">Wajib Setor Kas Sekolah</span>
-            <p className="text-base font-black text-amber-900 mt-0.5">{formatRupiah(totalPengembalian)}</p>
+            <span className="text-[11px] font-bold text-amber-800 uppercase">⏳ Sisa Belum Kembali</span>
+            <p className="text-base font-black text-amber-900 mt-0.5">{formatRupiah(totalBelumKembali)}</p>
           </div>
         </div>
       </div>
@@ -348,14 +428,17 @@ export const LaporanHonorView: React.FC<LaporanHonorViewProps> = ({
                 <th className="p-2 border border-slate-300 text-center w-24">Bulan</th>
                 <th className="p-2 border border-slate-300 text-right">Hak Gaji (Rp)</th>
                 <th className="p-2 border border-slate-300 text-right">Cair di SI (Rp)</th>
-                <th className="p-2 border border-slate-300 text-right">Harus Dikembalikan</th>
+                <th className="p-2 border border-slate-300 text-right">Harus Kembali (Rp)</th>
+                <th className="p-2 border border-slate-300 text-right">Jml Dikembalikan (Rp)</th>
+                <th className="p-2 border border-slate-300 text-right">Sisa Belum (Rp)</th>
+                <th className="p-2 border border-slate-300 text-center">Status Setor</th>
                 <th className="p-2 border border-slate-300">Keterangan</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-200 font-medium text-slate-800">
               {filteredHonor.length === 0 ? (
                 <tr>
-                  <td colSpan={8} className="p-6 text-center text-slate-400 italic">
+                  <td colSpan={11} className="p-6 text-center text-slate-400 italic">
                     Tidak ada catatan realisasi honor yang sesuai kriteria filter.
                   </td>
                 </tr>
@@ -363,6 +446,15 @@ export const LaporanHonorView: React.FC<LaporanHonorViewProps> = ({
                 filteredHonor.map((item, idx) => {
                   const guru = guruList.find((g) => g.id === Number(item.idGuru));
                   const kembali = Math.max(0, Number(item.jumlahSI) - Number(item.gaji));
+                  const dikembalikan =
+                    item.jumlahDikembalikan !== undefined
+                      ? Number(item.jumlahDikembalikan)
+                      : item.statusPengembalian === "sudah"
+                      ? kembali
+                      : 0;
+                  const sisa = Math.max(0, kembali - dikembalikan);
+                  const isLunas = kembali > 0 && sisa === 0;
+
                   return (
                     <tr key={item.id} className="hover:bg-slate-50/80">
                       <td className="p-2 border border-slate-300 text-center font-bold">
@@ -388,8 +480,31 @@ export const LaporanHonorView: React.FC<LaporanHonorViewProps> = ({
                       <td className="p-2 border border-slate-300 text-right font-bold text-indigo-700">
                         {formatRupiah(item.jumlahSI)}
                       </td>
-                      <td className="p-2 border border-slate-300 text-right font-black text-amber-700">
+                      <td className="p-2 border border-slate-300 text-right font-black text-rose-700">
                         {kembali > 0 ? formatRupiah(kembali) : "-"}
+                      </td>
+                      <td className="p-2 border border-slate-300 text-right font-bold text-emerald-700">
+                        {dikembalikan > 0 ? formatRupiah(dikembalikan) : kembali > 0 ? "Rp 0" : "-"}
+                      </td>
+                      <td className="p-2 border border-slate-300 text-right font-black text-amber-700">
+                        {sisa > 0 ? formatRupiah(sisa) : kembali > 0 ? "Rp 0" : "-"}
+                      </td>
+                      <td className="p-2 border border-slate-300 text-center">
+                        {kembali === 0 ? (
+                          <span className="text-[10px] font-semibold text-slate-500">Sesuai / Nihil</span>
+                        ) : isLunas ? (
+                          <span className="text-[10px] font-bold text-emerald-700">
+                            ✓ Lunas {item.tanggalPengembalian ? `(${item.tanggalPengembalian})` : ""}
+                          </span>
+                        ) : dikembalikan > 0 ? (
+                          <span className="text-[10px] font-bold text-sky-700">
+                            ⏳ Belum Lunas
+                          </span>
+                        ) : (
+                          <span className="text-[10px] font-bold text-amber-700">
+                            ⏳ Belum Setor
+                          </span>
+                        )}
                       </td>
                       <td className="p-2 border border-slate-300 text-[11px] text-slate-600">
                         {item.keterangan || (kembali > 0 ? "Kelebihan SI disetor ke Kas" : "Sesuai SK")}
@@ -410,34 +525,65 @@ export const LaporanHonorView: React.FC<LaporanHonorViewProps> = ({
                 <td className="p-2.5 border border-slate-300 text-right text-indigo-700">
                   {formatRupiah(totalCairSI)}
                 </td>
-                <td className="p-2.5 border border-slate-300 text-right text-amber-700">
+                <td className="p-2.5 border border-slate-300 text-right text-rose-700">
                   {formatRupiah(totalPengembalian)}
                 </td>
-                <td className="p-2.5 border border-slate-300"></td>
+                <td className="p-2.5 border border-slate-300 text-right text-emerald-700">
+                  {formatRupiah(totalSudahKembali)}
+                </td>
+                <td className="p-2.5 border border-slate-300 text-right text-amber-700">
+                  {formatRupiah(totalBelumKembali)}
+                </td>
+                <td colSpan={2} className="p-2.5 border border-slate-300 text-[11px] text-slate-700 text-center">
+                  Kembali: {formatRupiah(totalSudahKembali)} | Sisa: {formatRupiah(totalBelumKembali)}
+                </td>
               </tr>
             </tfoot>
           </table>
         </div>
 
         {/* Grand Total Summary Box */}
-        <div className="my-6 p-4 rounded-2xl bg-amber-50/90 border border-amber-300 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div className="flex items-center space-x-3">
-            <div className="w-9 h-9 rounded-xl bg-amber-500 text-white flex items-center justify-center font-bold shrink-0">
-              <CheckCircle2 className="w-5 h-5" />
+        <div className="my-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="p-4 rounded-2xl bg-amber-50/90 border border-amber-300 flex items-center justify-between">
+            <div className="flex items-center space-x-3">
+              <div className="w-9 h-9 rounded-xl bg-amber-500 text-white flex items-center justify-center font-bold shrink-0">
+                <AlertTriangle className="w-5 h-5" />
+              </div>
+              <div>
+                <h4 className="font-black text-amber-950 text-xs uppercase tracking-wide">
+                  DANA BELUM DIKEMBALIKAN (WAJIB SETOR)
+                </h4>
+                <p className="text-[11px] text-amber-800 font-medium">
+                  Harus disetorkan ke Kas Sekolah BOSP
+                </p>
+              </div>
             </div>
-            <div>
-              <h4 className="font-black text-amber-950 text-xs uppercase tracking-wide">
-                TOTAL DANA SI HONOR WAJIB DIKEMBALIKAN KE KAS SEKOLAH (BOSP)
-              </h4>
-              <p className="text-[11px] text-amber-800 font-medium">
-                Selisih antara dana Standing Instruction yang dicairkan bank dengan hak riil guru penerima.
-              </p>
+            <div className="text-right">
+              <span className="text-xl font-black text-amber-900">
+                {formatRupiah(totalBelumKembali)}
+              </span>
             </div>
           </div>
-          <div className="text-right">
-            <span className="text-xl md:text-2xl font-black text-amber-900">
-              {formatRupiah(totalPengembalian)}
-            </span>
+
+          <div className="p-4 rounded-2xl bg-emerald-50/90 border border-emerald-300 flex items-center justify-between">
+            <div className="flex items-center space-x-3">
+              <div className="w-9 h-9 rounded-xl bg-emerald-600 text-white flex items-center justify-center font-bold shrink-0">
+                <CheckCircle2 className="w-5 h-5" />
+              </div>
+              <div>
+                <h4 className="font-black text-emerald-950 text-xs uppercase tracking-wide">
+                  DANA SUDAH DIKEMBALIKAN
+                </h4>
+                <p className="text-[11px] text-emerald-800 font-medium">
+                  Telah masuk rekening Kas Sekolah BOSP
+                </p>
+              </div>
+            </div>
+            <div className="text-right">
+              <span className="text-xl font-black text-emerald-900">
+                {formatRupiah(totalSudahKembali)}
+              </span>
+            </div>
           </div>
         </div>
 

@@ -92,6 +92,9 @@ export const initialHonorList: HonorEntry[] = [
     isGajiLocked: true,
     jumlahSI: 2750000,
     keterangan: "Pencairan Honor Jan",
+    statusPengembalian: "sudah",
+    tanggalPengembalian: "2026-01-25",
+    jumlahDikembalikan: 250000,
   },
   {
     id: 102,
@@ -101,6 +104,8 @@ export const initialHonorList: HonorEntry[] = [
     isGajiLocked: true,
     jumlahSI: 2800000,
     keterangan: "Pencairan Honor Jan",
+    statusPengembalian: "sudah",
+    jumlahDikembalikan: 0,
   },
   {
     id: 103,
@@ -110,6 +115,8 @@ export const initialHonorList: HonorEntry[] = [
     isGajiLocked: false,
     jumlahSI: 2500000,
     keterangan: "Pencairan Honor Jan",
+    statusPengembalian: "belum",
+    jumlahDikembalikan: 0,
   },
 ];
 

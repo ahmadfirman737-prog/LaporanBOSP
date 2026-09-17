@@ -12,6 +12,7 @@ import {
   Cloud,
   FileCheck,
   ReceiptText,
+  Landmark,
 } from "lucide-react";
 import { SchoolData, TabType } from "../types";
 
@@ -77,6 +78,12 @@ export const Sidebar: React.FC<SidebarProps> = ({
           label: "Laporan Belanja SIPLah",
           icon: ReceiptText,
           badgeColor: "bg-emerald-100 text-emerald-700",
+        },
+        {
+          id: "laporan-pengembalian",
+          label: "Dana Dikembalikan",
+          icon: Landmark,
+          badgeColor: "bg-teal-100 text-teal-700",
         },
         {
           id: "laporan",

@@ -6,6 +6,7 @@ import {
   CheckCircle2,
   FileCheck,
   ShoppingBag,
+  Landmark,
 } from "lucide-react";
 import * as XLSX from "xlsx";
 import { SchoolData, HonorEntry, SiplahEntry, Guru, TabType } from "../types";
@@ -168,6 +169,14 @@ export const LaporanView: React.FC<LaporanViewProps> = ({
           >
             <ShoppingBag className="w-3.5 h-3.5" />
             <span>Laporan Belanja SIPLah</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => onNavigateTab && onNavigateTab("laporan-pengembalian")}
+            className="px-4 py-2 hover:bg-white text-slate-600 hover:text-indigo-600 font-bold text-xs rounded-xl transition flex items-center gap-2"
+          >
+            <Landmark className="w-3.5 h-3.5" />
+            <span>Dana Dikembalikan (Total)</span>
           </button>
           <button
             type="button"
