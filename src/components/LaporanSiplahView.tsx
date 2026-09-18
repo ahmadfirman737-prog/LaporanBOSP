@@ -88,6 +88,26 @@ export const LaporanSiplahView: React.FC<LaporanSiplahViewProps> = ({
     [filteredSiplah]
   );
 
+  const totalSudahDikembalikan = useMemo(
+    () =>
+      filteredSiplah.reduce((sum, s) => {
+        const kembali = Math.max(0, Number(s.jumlahSI || 0) - Number(s.jumlahSIPLah || 0));
+        const dikembalikan =
+          s.jumlahDikembalikan !== undefined
+            ? Number(s.jumlahDikembalikan)
+            : s.statusPengembalian === "sudah"
+            ? kembali
+            : 0;
+        return sum + dikembalikan;
+      }, 0),
+    [filteredSiplah]
+  );
+
+  const totalSisaBelumKembali = useMemo(
+    () => Math.max(0, totalPengembalian - totalSudahDikembalikan),
+    [totalPengembalian, totalSudahDikembalikan]
+  );
+
   const handlePrint = () => {
     window.print();
   };
@@ -96,6 +116,13 @@ export const LaporanSiplahView: React.FC<LaporanSiplahViewProps> = ({
     try {
       const rows = filteredSiplah.map((item, idx) => {
         const kembali = Math.max(0, Number(item.jumlahSI) - Number(item.jumlahSIPLah));
+        const dikembalikan =
+          item.jumlahDikembalikan !== undefined
+            ? Number(item.jumlahDikembalikan)
+            : item.statusPengembalian === "sudah"
+            ? kembali
+            : 0;
+        const sisa = Math.max(0, kembali - dikembalikan);
         return {
           No: idx + 1,
           Tanggal: item.tanggal,
@@ -104,8 +131,11 @@ export const LaporanSiplahView: React.FC<LaporanSiplahViewProps> = ({
           "Uraian / Keperluan Belanja": item.keperluan,
           "Nominal Invoice SIPLah (Rp)": Number(item.jumlahSIPLah),
           "Jumlah di-SI-kan (Rp)": Number(item.jumlahSI),
-          "Harus Dikembalikan ke Kas (Rp)": kembali,
-          Status: kembali > 0 ? "Ada Pengembalian" : "Sesuai / Nihil",
+          "Wajib Dikembalikan ke Kas (Rp)": kembali,
+          "Sudah Dikembalikan (Rp)": dikembalikan,
+          "Tanggal Pengembalian": item.tanggalPengembalian || (dikembalikan > 0 ? item.tanggal : "-"),
+          "Sisa Belum Dikembalikan (Rp)": sisa,
+          Status: kembali === 0 ? "Sesuai / Nihil" : sisa === 0 ? "Lunas Masuk Kas" : "Belum Lunas",
         };
       });
 
@@ -118,7 +148,10 @@ export const LaporanSiplahView: React.FC<LaporanSiplahViewProps> = ({
         "Uraian / Keperluan Belanja": "",
         "Nominal Invoice SIPLah (Rp)": totalNominalSIPLah,
         "Jumlah di-SI-kan (Rp)": totalCairSI,
-        "Harus Dikembalikan ke Kas (Rp)": totalPengembalian,
+        "Wajib Dikembalikan ke Kas (Rp)": totalPengembalian,
+        "Sudah Dikembalikan (Rp)": totalSudahDikembalikan,
+        "Tanggal Pengembalian": "",
+        "Sisa Belum Dikembalikan (Rp)": totalSisaBelumKembali,
         Status: "",
       });
 
@@ -134,7 +167,9 @@ export const LaporanSiplahView: React.FC<LaporanSiplahViewProps> = ({
         { Parameter: "Filter Toko", Nilai: selectedToko === "all" ? "Semua Mitra Toko" : selectedToko },
         { Parameter: "Total Invoice SIPLah", Nilai: totalNominalSIPLah },
         { Parameter: "Total Pencairan SI", Nilai: totalCairSI },
-        { Parameter: "Total Pengembalian ke Kas", Nilai: totalPengembalian },
+        { Parameter: "Total Wajib Dikembalikan ke Kas", Nilai: totalPengembalian },
+        { Parameter: "Total Sudah Masuk Kas", Nilai: totalSudahDikembalikan },
+        { Parameter: "Total Sisa Belum Masuk Kas", Nilai: totalSisaBelumKembali },
         { Parameter: "Tanggal Cetak", Nilai: currentDate },
       ];
       const wsMeta = XLSX.utils.json_to_sheet(meta);
@@ -344,24 +379,34 @@ export const LaporanSiplahView: React.FC<LaporanSiplahViewProps> = ({
             <thead className="bg-slate-100 text-slate-800 font-bold uppercase tracking-wider">
               <tr>
                 <th className="p-2 border border-slate-300 text-center w-8">No</th>
-                <th className="p-2 border border-slate-300 w-24">Tanggal</th>
+                <th className="p-2 border border-slate-300 w-20">Tanggal</th>
                 <th className="p-2 border border-slate-300">Toko / Mitra SIPLah</th>
                 <th className="p-2 border border-slate-300">No. SPK & Keperluan Belanja</th>
-                <th className="p-2 border border-slate-300 text-right">Invoice SIPLah (Rp)</th>
-                <th className="p-2 border border-slate-300 text-right">Cair di SI (Rp)</th>
-                <th className="p-2 border border-slate-300 text-right">Harus Dikembalikan</th>
+                <th className="p-2 border border-slate-300 text-right">Invoice SIPLah</th>
+                <th className="p-2 border border-slate-300 text-right">Cair di SI</th>
+                <th className="p-2 border border-slate-300 text-right">Wajib Kembali</th>
+                <th className="p-2 border border-slate-300 text-right">Sudah Masuk Kas</th>
+                <th className="p-2 border border-slate-300 text-right">Sisa Belum Setor</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-200 font-medium text-slate-800">
               {filteredSiplah.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="p-6 text-center text-slate-400 italic">
+                  <td colSpan={9} className="p-6 text-center text-slate-400 italic">
                     Tidak ada data belanja SIPLah yang sesuai kriteria filter.
                   </td>
                 </tr>
               ) : (
                 filteredSiplah.map((item, idx) => {
                   const kembali = Math.max(0, Number(item.jumlahSI) - Number(item.jumlahSIPLah));
+                  const dikembalikan =
+                    item.jumlahDikembalikan !== undefined
+                      ? Number(item.jumlahDikembalikan)
+                      : item.statusPengembalian === "sudah"
+                      ? kembali
+                      : 0;
+                  const sisa = Math.max(0, kembali - dikembalikan);
+
                   return (
                     <tr key={item.id} className="hover:bg-slate-50/80">
                       <td className="p-2 border border-slate-300 text-center font-bold">
@@ -390,6 +435,33 @@ export const LaporanSiplahView: React.FC<LaporanSiplahViewProps> = ({
                       <td className="p-2 border border-slate-300 text-right font-black text-amber-700">
                         {kembali > 0 ? formatRupiah(kembali) : "-"}
                       </td>
+                      <td className="p-2 border border-slate-300 text-right">
+                        {dikembalikan > 0 ? (
+                          <div>
+                            <span className="font-bold text-emerald-800">
+                              {formatRupiah(dikembalikan)}
+                            </span>
+                            {item.tanggalPengembalian && (
+                              <div className="text-[9px] text-slate-500 font-medium">
+                                Tgl: {item.tanggalPengembalian}
+                              </div>
+                            )}
+                          </div>
+                        ) : kembali > 0 ? (
+                          <span className="text-[10px] text-rose-600 font-bold">Belum Setor</span>
+                        ) : (
+                          <span className="text-slate-400">-</span>
+                        )}
+                      </td>
+                      <td className="p-2 border border-slate-300 text-right font-black">
+                        {kembali === 0 ? (
+                          <span className="text-slate-400 font-normal">-</span>
+                        ) : sisa > 0 ? (
+                          <span className="text-rose-600">{formatRupiah(sisa)}</span>
+                        ) : (
+                          <span className="text-emerald-700 text-[11px]">LUNAS</span>
+                        )}
+                      </td>
                     </tr>
                   );
                 })
@@ -409,30 +481,51 @@ export const LaporanSiplahView: React.FC<LaporanSiplahViewProps> = ({
                 <td className="p-2.5 border border-slate-300 text-right text-amber-700">
                   {formatRupiah(totalPengembalian)}
                 </td>
+                <td className="p-2.5 border border-slate-300 text-right text-emerald-800">
+                  {formatRupiah(totalSudahDikembalikan)}
+                </td>
+                <td className="p-2.5 border border-slate-300 text-right text-rose-700">
+                  {formatRupiah(totalSisaBelumKembali)}
+                </td>
               </tr>
             </tfoot>
           </table>
         </div>
 
         {/* Grand Total Summary Box */}
-        <div className="my-6 p-4 rounded-2xl bg-amber-50/90 border border-amber-300 flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div className="my-6 p-4 rounded-2xl bg-amber-50/90 border border-amber-300 flex flex-col md:flex-row items-center justify-between gap-4">
           <div className="flex items-center space-x-3">
-            <div className="w-9 h-9 rounded-xl bg-amber-500 text-white flex items-center justify-center font-bold shrink-0">
+            <div className="w-10 h-10 rounded-xl bg-amber-500 text-white flex items-center justify-center font-bold shrink-0">
               <CheckCircle2 className="w-5 h-5" />
             </div>
             <div>
               <h4 className="font-black text-amber-950 text-xs uppercase tracking-wide">
-                TOTAL DANA SI SIPLAH WAJIB DIKEMBALIKAN KE KAS SEKOLAH (BOSP)
+                REKAPITULASI PENGEMBALIAN DANA KELEBIHAN SI SIPLAH KE KAS SEKOLAH
               </h4>
               <p className="text-[11px] text-amber-800 font-medium">
-                Selisih dana Standing Instruction bank dengan nilai transaksi invoice resmi rekanan penyedia SIPLah.
+                Kelebihan nominal Standing Instruction bank wajib disetorkan kembali secara utuh ke Kas BOSP Satuan Pendidikan.
               </p>
             </div>
           </div>
-          <div className="text-right">
-            <span className="text-xl md:text-2xl font-black text-amber-900">
-              {formatRupiah(totalPengembalian)}
-            </span>
+          <div className="flex items-center gap-6 text-right">
+            <div>
+              <span className="text-[10px] text-slate-500 font-bold block uppercase">Wajib Kembali</span>
+              <span className="text-base font-black text-amber-900">
+                {formatRupiah(totalPengembalian)}
+              </span>
+            </div>
+            <div>
+              <span className="text-[10px] text-emerald-700 font-bold block uppercase">Sudah Disetor</span>
+              <span className="text-base font-black text-emerald-800">
+                {formatRupiah(totalSudahDikembalikan)}
+              </span>
+            </div>
+            <div>
+              <span className="text-[10px] text-rose-600 font-bold block uppercase">Sisa Belum Setor</span>
+              <span className="text-base font-black text-rose-700">
+                {formatRupiah(totalSisaBelumKembali)}
+              </span>
+            </div>
           </div>
         </div>
 

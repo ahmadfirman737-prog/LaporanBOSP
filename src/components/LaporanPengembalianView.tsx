@@ -121,16 +121,28 @@ export const LaporanPengembalianView: React.FC<LaporanPengembalianViewProps> = (
   const mappedSiplahItems = useMemo<PengembalianItem[]>(() => {
     return siplahList.map((s) => {
       const kembali = Math.max(0, Number(s.jumlahSI || 0) - Number(s.jumlahSIPLah || 0));
-      // Kelebihan pencairan SI SIPLah langsung disetorkan kembali ke kas sekolah
-      const dikembalikan = kembali;
-      const sisa = 0;
+      const dikembalikan =
+        s.jumlahDikembalikan !== undefined
+          ? Number(s.jumlahDikembalikan)
+          : s.statusPengembalian === "sudah"
+          ? kembali
+          : 0;
+      const sisa = Math.max(0, kembali - dikembalikan);
 
       let status: "lunas" | "cicil" | "belum" | "nihil" = "nihil";
       let statusText = "Sesuai / Nihil";
 
       if (kembali > 0) {
-        status = "lunas";
-        statusText = "Lunas Disetor ke Kas Sekolah";
+        if (sisa === 0) {
+          status = "lunas";
+          statusText = `Lunas Masuk Kas ${s.tanggalPengembalian ? `(${s.tanggalPengembalian})` : ""}`;
+        } else if (dikembalikan > 0) {
+          status = "cicil";
+          statusText = `Belum Lunas (Sisa: ${formatRupiah(sisa)})`;
+        } else {
+          status = "belum";
+          statusText = "Belum Dikembalikan";
+        }
       }
 
       return {
@@ -148,7 +160,7 @@ export const LaporanPengembalianView: React.FC<LaporanPengembalianViewProps> = (
         sisaBelumKembali: sisa,
         status,
         statusText,
-        tanggalSetor: s.tanggal,
+        tanggalSetor: s.tanggalPengembalian || (dikembalikan > 0 ? s.tanggal : undefined),
         keterangan: kembali > 0 ? "Selisih pencairan SI disetor kembali ke Kas Sekolah" : "Sesuai Faktur",
       };
     });

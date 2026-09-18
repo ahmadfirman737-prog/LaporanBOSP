@@ -129,6 +129,9 @@ export const initialSiplahList: SiplahEntry[] = [
     jumlahSIPLah: 12500000,
     jumlahSI: 13000000,
     noSpk: "050/SPK/BOSP/2026",
+    statusPengembalian: "sudah",
+    tanggalPengembalian: "2026-01-18",
+    jumlahDikembalikan: 500000,
   },
   {
     id: 202,
@@ -138,6 +141,8 @@ export const initialSiplahList: SiplahEntry[] = [
     jumlahSIPLah: 8400000,
     jumlahSI: 8400000,
     noSpk: "051/SPK/BOSP/2026",
+    statusPengembalian: "sudah",
+    jumlahDikembalikan: 0,
   },
   {
     id: 203,
@@ -147,6 +152,9 @@ export const initialSiplahList: SiplahEntry[] = [
     jumlahSIPLah: 3200000,
     jumlahSI: 3500000,
     noSpk: "052/SPK/BOSP/2026",
+    statusPengembalian: "belum",
+    tanggalPengembalian: undefined,
+    jumlahDikembalikan: 0,
   },
 ];
 

@@ -226,7 +226,14 @@ export async function deleteHonorFromDb(honorId: number) {
 
 export async function saveSiplahToDb(entry: SiplahEntry) {
   try {
-    await setDoc(doc(db, SIPLAH_COL, String(entry.id)), entry);
+    const cleanEntry: any = { ...entry };
+    if (cleanEntry.tanggalPengembalian === undefined) {
+      delete cleanEntry.tanggalPengembalian;
+    }
+    if (cleanEntry.jumlahDikembalikan === undefined) {
+      cleanEntry.jumlahDikembalikan = 0;
+    }
+    await setDoc(doc(db, SIPLAH_COL, String(entry.id)), cleanEntry);
   } catch (err) {
     console.error("Error saving siplah to Firestore:", err);
   }

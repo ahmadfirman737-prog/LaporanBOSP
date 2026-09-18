@@ -40,6 +40,9 @@ export interface SiplahEntry {
   jumlahSIPLah: number;
   jumlahSI: number;
   noSpk: string;
+  statusPengembalian?: "belum" | "sudah";
+  tanggalPengembalian?: string;
+  jumlahDikembalikan?: number;
 }
 
 export interface ToastNotification {
