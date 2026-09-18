@@ -199,7 +199,13 @@ export const App: React.FC = () => {
     // 2. Real-time Subscriptions
     const unsubSchool = subscribeSchool((remoteSchool) => {
       if (remoteSchool) {
-        setSchool((prev) => ({ ...prev, ...remoteSchool }));
+        setSchool((prev) => {
+          let updatedLogo = remoteSchool.logoUrl;
+          if (!updatedLogo || updatedLogo.includes("unsplash.com")) {
+            updatedLogo = "/logo.svg?v=kusuma2";
+          }
+          return { ...prev, ...remoteSchool, logoUrl: updatedLogo };
+        });
       }
     });
 

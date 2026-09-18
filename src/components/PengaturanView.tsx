@@ -206,17 +206,17 @@ export const PengaturanView: React.FC<PengaturanViewProps> = ({
                   <button
                     type="button"
                     onClick={() => handleSetPresetLogo("/logo.svg?v=kusuma2", "Logo Vektor Kusuma Bangsa")}
-                    className="px-3 py-2 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 font-bold rounded-xl text-xs shadow-xs transition"
+                    className="px-3 py-2 bg-emerald-50 border border-emerald-300 hover:bg-emerald-100 text-emerald-800 font-bold rounded-xl text-xs shadow-xs transition"
                   >
-                    Logo Kusuma Bangsa
+                    Logo Kusuma Bangsa (Vektor)
                   </button>
 
                   <button
                     type="button"
-                    onClick={() => handleSetPresetLogo("/logo.png", "Logo Resmi Kemdikbud")}
+                    onClick={() => handleSetPresetLogo("/logo.png", "Logo Resmi Kusuma Bangsa PNG")}
                     className="px-3 py-2 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 font-bold rounded-xl text-xs shadow-xs transition"
                   >
-                    Logo Standar
+                    Logo Kusuma Bangsa (PNG)
                   </button>
                 </div>
               </div>
