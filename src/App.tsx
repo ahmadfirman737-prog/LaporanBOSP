@@ -521,6 +521,7 @@ export const App: React.FC = () => {
               guruList={guruList}
               setGuruList={handleSetGuruList}
               showToast={showToast}
+              searchQuery={searchQuery}
             />
           )}
 
